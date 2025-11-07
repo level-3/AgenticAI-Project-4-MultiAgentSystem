@@ -71,6 +71,18 @@ def normalize_agent_response(response: Any) -> Dict[str, Any]:
         except json.JSONDecodeError:
             pass
 
+        # Handle cases where \n appears as literal string characters (not escaped)
+        # This happens when agents return strings like: '{\n  "key": "value"\n}'
+        if '\\n' in response:
+            try:
+                # Replace literal \n with actual newlines
+                cleaned = response.replace('\\n', '\n').replace('\\r', '\r').replace('\\t', '\t')
+                parsed = json.loads(cleaned)
+                if isinstance(parsed, dict):
+                    return parsed
+            except json.JSONDecodeError:
+                pass
+
         # Handle escaped quotes with literal newlines (common with smolagents)
         # Example: {\"key\": \"value\nwith newline\"}
         if '\\"' in response:
@@ -889,7 +901,7 @@ def generate_financial_report(as_of_date: Union[str, datetime]) -> Dict:
     }
 
 
-def search_quote_history(search_terms: List[str], limit: int = 5) -> List[Dict]:
+def search_quote_history(search_terms: List[str], limit: int = 5) -> str:
     """
     Retrieve a list of historical quotes that match any of the provided search terms.
 
@@ -902,7 +914,7 @@ def search_quote_history(search_terms: List[str], limit: int = 5) -> List[Dict]:
         limit (int, optional): Maximum number of quote records to return. Default is 5.
 
     Returns:
-        List[Dict]: A list of matching quotes, each represented as a dictionary with fields:
+        str: A list of matching quotes, each represented as a dictionary with fields:
             - original_request
             - total_amount
             - quote_explanation
@@ -924,7 +936,7 @@ def search_quote_history(search_terms: List[str], limit: int = 5) -> List[Dict]:
         params[param_name] = f"%{term.lower()}%"
 
     # Combine conditions; fallback to always-true if no terms provided
-    where_clause = " AND ".join(conditions) if conditions else "1=1"
+    where_clause = " OR ".join(conditions) if conditions else "1=1"
 
     # Final SQL query to join quotes with quote_requests
     query = f"""
@@ -946,7 +958,52 @@ def search_quote_history(search_terms: List[str], limit: int = 5) -> List[Dict]:
     # Execute parameterized query
     with db_engine.connect() as conn:
         result = conn.execute(text(query), params)
-        return [dict(row) for row in result]
+        result_list = result.fetchall()
+
+        """
+        print(f"Executed quote history search with terms: {search_terms}")
+        print(f"SQL Query: {query}")
+        print(f"Query Parameters: {params}")
+        print(f"Number of results: {result.rowcount}")
+        print(f"Results: {result_list}")
+        """
+
+        return result_list
+        # return [dict(row) for row in result]
+
+
+def remove_quotes(text: str) -> str:
+    """
+    Remove all double quote characters from a string.
+
+    This function removes all occurrences of the double quote character (")
+    from the input string. Useful for sanitizing user input, cleaning data
+    from external sources, or preparing strings for database operations.
+
+    Args:
+        text: The string to clean. Can be empty or contain any characters.
+
+    Returns:
+        A new string with all double quotes removed. Returns empty string
+        if input is empty.
+
+    Examples:
+        >>> remove_quotes('Hello "World"')
+        'Hello World'
+
+        >>> remove_quotes('"Quoted text"')
+        'Quoted text'
+
+        >>> remove_quotes('No quotes here')
+        'No quotes here'
+
+        >>> remove_quotes('Multiple ""quotes"" here')
+        'Multiple quotes here'
+
+        >>> remove_quotes('')
+        ''
+    """
+    return text.replace('"', "")
 
 
 ########################
@@ -1459,6 +1516,68 @@ def semantic_search_inventory(query: str, request_date: str) -> dict[str, Any]:
     )
 
 
+def _check_exact_match(query: str, catalog_df: pd.DataFrame) -> dict | None:
+    """
+    Check if query exactly matches any item name (case-insensitive).
+
+    Args:
+        query: Search query string
+        catalog_df: DataFrame containing catalog items
+
+    Returns:
+        Dictionary with item details if exact match found, None otherwise
+    """
+    if catalog_df is None or catalog_df.empty:
+        return None
+
+    query_lower = query.lower().strip()
+    matches = catalog_df[catalog_df["item_name"].str.lower() == query_lower]
+
+    if not matches.empty:
+        return matches.iloc[0].to_dict()
+    return None
+
+
+def _validate_category_match(query: str, matched_category: str) -> bool:
+    """
+    Validate if the matched item's category makes sense for the query.
+
+    Returns False if the match is semantically nonsensical.
+
+    Args:
+        query: Original search query
+        matched_category: Category of the matched item
+
+    Returns:
+        True if match is valid, False if semantically incorrect
+    """
+    # Define categories that don't make sense for specific queries
+    invalid_matches = {
+        "tickets": [
+            "paper",
+            "specialty",
+            "large_format",
+        ],  # tickets shouldn't match paper types
+        "balloons": [
+            "paper",
+            "specialty",
+            "product",
+            "large_format",
+        ],  # balloons aren't paper products
+        "decorations": [
+            "paper",
+            "specialty",
+        ],  # general decorations shouldn't match paper
+        "banners": ["paper"],  # finished banners vs banner paper (raw material)
+    }
+
+    query_lower = query.lower().strip()
+    if query_lower in invalid_matches:
+        return matched_category not in invalid_matches[query_lower]
+
+    return True  # Allow match by default
+
+
 @tool
 def semantic_search_catalog(query: str) -> dict[str, Any]:
     """
@@ -1493,7 +1612,35 @@ def semantic_search_catalog(query: str) -> dict[str, Any]:
 
     print(f"🔍 Searching catalog for: '{query}'")
 
-    results = search_engine.find_multiple_catalog_matches(query, threshold=0.4)
+    # ✅ FIX 1: Check for exact match first
+    exact_match = _check_exact_match(query, search_engine.catalog_df)
+    if exact_match:
+        print(f"✅ Exact match found for '{query}': {exact_match['item_name']}")
+        return [
+            {
+                "item_name": exact_match["item_name"],
+                "category": exact_match["category"],
+                "unit_price": f"${exact_match['unit_price']:.2f}",
+                "confidence": "high",
+                "found": True,
+                "query": query,
+                "source": "catalog",
+                "message": "Exact match found in catalog, item can be ordered",
+            }
+        ]
+
+    # ✅ FIX 2: Increase threshold from 0.4 to 0.65 for stricter matching
+    results = search_engine.find_multiple_catalog_matches(query, threshold=0.65)
+
+    # ✅ FIX 3: Log all matches for debugging
+    if results:
+        print(f"📊 Semantic search results for '{query}':")
+        for r in results:
+            print(
+                f"   - {r['item_name']} (confidence: {r['confidence']}, similarity: {r['similarity_score']:.3f})"
+            )
+    else:
+        print(f"❌ No matches found for '{query}' (threshold: 0.65)")
 
     if not results:
         return {
@@ -1502,13 +1649,47 @@ def semantic_search_catalog(query: str) -> dict[str, Any]:
             "results": [],
         }
 
+    # ✅ FIX 4: Filter results by confidence level (only high/medium)
+    high_confidence_results = [
+        r for r in results if r["confidence"] in ["high", "medium"]
+    ]
+
+    if not high_confidence_results:
+        print(
+            f"⚠️  No high-confidence matches for '{query}' (all matches were low confidence)"
+        )
+        return {
+            "found": False,
+            "message": f"No high-confidence matches found for '{query}'",
+            "results": [],
+        }
+
+    # ✅ FIX 5: Validate category makes sense for the query
+    validated_results = []
+    for result in high_confidence_results:
+        if _validate_category_match(query, result["category"]):
+            validated_results.append(result)
+        else:
+            print(
+                f"⚠️  Rejected match '{result['item_name']}' for query '{query}' - category mismatch"
+            )
+
+    if not validated_results:
+        print(
+            f"⚠️  No semantically valid matches for '{query}' (all matches failed category validation)"
+        )
+        return {
+            "found": False,
+            "message": f"No semantically appropriate matches found for '{query}'",
+            "results": [],
+        }
+
     item_list = []
-    for result in results:
+    for result in validated_results:
         item = {
             "item_name": result["item_name"],
             "category": result["category"],
             "unit_price": f"${result['unit_price']:.2f}",
-            # "similarity_score": result["similarity_score"],
             "confidence": result["confidence"],
             "found": True,
             "query": query,
@@ -1516,6 +1697,8 @@ def semantic_search_catalog(query: str) -> dict[str, Any]:
             "message": f"Found similar item in catalog, item can be ordered",
         }
         item_list.append(item)
+
+    print(f"✅ Returning {len(item_list)} validated match(es) for '{query}'")
     return item_list
 
 
@@ -2023,6 +2206,226 @@ def calculate_reorder_quantity(
 
 
 @tool
+def get_inventory_snapshot(as_of_date: str) -> Dict[str, Any]:
+    """
+    Get a complete snapshot of all inventory items.
+
+    Args:
+        as_of_date: Date for the inventory snapshot (YYYY-MM-DD format)
+
+    Returns:
+        Dictionary with inventory snapshot data
+    """
+    inventory = get_all_inventory(as_of_date)
+
+    # avoid this error :
+
+    # avoid this error : TypeError: string indices must be integers, not 'str'
+    # inventory = json.loads(inventory)
+
+    print(f"Inventory as of {as_of_date}: {inventory}")
+
+    # calculate total quantity of keys in dictionary
+    total_quantity = sum(inventory[item] for item in inventory)
+
+    # Identify any products that are below min stock level
+    # low_stock_items = [        item for item in inventory if item["current_stock"] < item["min_stock_level"]    ]
+
+    return {
+        "inventory": inventory,
+        "as_of_date": as_of_date,
+        "total_quantity_inventory": total_quantity,
+        # "total_items": len(inventory),
+        # "low_stock_items": low_stock_items,
+    }
+
+
+@tool
+def get_inventory_details_snapshot(request_date: str) -> str:
+    """
+    Get a complete snapshot of all inventory items as of a specific date.
+
+    Provides comprehensive inventory health analysis including:
+    - All items with current stock levels
+    - Items below minimum stock (low stock alert)
+    - Out of stock items
+    - Overall inventory health score
+    - Total inventory value
+
+    Args:
+        request_date: Date to check inventory (ISO format YYYY-MM-DD)
+
+    Returns:
+        JSON string with complete inventory snapshot and health metrics
+
+    Examples:
+        get_inventory_snapshot("2025-04-01")
+    """
+    try:
+        # Get all inventory using the provided get_all_inventory function
+        inventory_dict = get_all_inventory(request_date)
+
+        if not inventory_dict:
+            return json.dumps(
+                {
+                    "success": False,
+                    "total_items": 0,
+                    "inventory_items": [],
+                    "low_stock_items": [],
+                    "out_of_stock_items": [],
+                    "inventory_health_score": 0.0,
+                    "message": "No inventory data available for the specified date",
+                },
+                indent=2,
+            )
+
+        # Get inventory reference data (categories, min levels, prices)
+        query = "SELECT * FROM inventory"
+        inventory_df = pd.read_sql(query, db_engine)
+
+        if inventory_df.empty:
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": "Inventory reference table is empty",
+                    "total_items": 0,
+                },
+                indent=2,
+            )
+
+        # Build comprehensive inventory snapshot
+        inventory_items = []
+        low_stock_items = []
+        out_of_stock_items = []
+        healthy_items = 0
+        total_value = 0.0
+
+        for item_name, current_stock in inventory_dict.items():
+            # Find matching item in inventory reference
+            item_info = inventory_df[
+                inventory_df["item_name"].str.lower() == item_name.lower()
+            ]
+
+            if item_info.empty:
+                continue
+
+            item_data = item_info.iloc[0]
+            min_stock_level = int(item_data["min_stock_level"])
+            unit_price = float(item_data["unit_price"])
+            category = item_data["category"]
+
+            # Calculate stock metrics
+            coverage_ratio = (
+                current_stock / min_stock_level if min_stock_level > 0 else 0
+            )
+            stock_value = current_stock * unit_price
+            total_value += stock_value
+
+            # Determine stock status
+            if current_stock == 0:
+                stock_status = "out_of_stock"
+                out_of_stock_items.append(
+                    {
+                        "item_name": item_name,
+                        "min_stock_level": min_stock_level,
+                        "unit_price": unit_price,
+                        "category": category,
+                    }
+                )
+            elif current_stock < min_stock_level:
+                stock_status = "low_stock"
+                shortage = min_stock_level - current_stock
+                recommended_reorder = max(shortage, min_stock_level * 2)
+                low_stock_items.append(
+                    {
+                        "item_name": item_name,
+                        "current_stock": current_stock,
+                        "min_stock_level": min_stock_level,
+                        "shortage": shortage,
+                        "recommended_reorder": recommended_reorder,
+                        "estimated_cost": round(recommended_reorder * unit_price, 2),
+                    }
+                )
+            else:
+                stock_status = "healthy"
+                healthy_items += 1
+
+            # Add to inventory items list
+            inventory_items.append(
+                {
+                    "item_name": item_name,
+                    "current_stock": current_stock,
+                    "min_stock_level": min_stock_level,
+                    "unit_price": unit_price,
+                    "category": category,
+                    "stock_status": stock_status,
+                    "coverage_ratio": round(coverage_ratio, 2),
+                    "stock_value": round(stock_value, 2),
+                }
+            )
+
+        # Calculate inventory health score
+        total_items = len(inventory_items)
+        health_score = (healthy_items / total_items * 100) if total_items > 0 else 0
+
+        # Build summary message
+        message = (
+            f"Inventory health: {health_score:.1f}% - "
+            f"{healthy_items} items healthy, "
+            f"{len(low_stock_items)} low stock, "
+            f"{len(out_of_stock_items)} out of stock"
+        )
+
+        # Sort items by stock status priority
+        status_order = {"out_of_stock": 0, "low_stock": 1, "healthy": 2}
+        inventory_items.sort(key=lambda x: status_order[x["stock_status"]])
+
+        result = {
+            "success": True,
+            "request_date": request_date,
+            "total_items": total_items,
+            "inventory_items": inventory_items,
+            "low_stock_items": low_stock_items,
+            "out_of_stock_items": out_of_stock_items,
+            "inventory_health_score": round(health_score, 2),
+            "healthy_items_count": healthy_items,
+            "low_stock_count": len(low_stock_items),
+            "out_of_stock_count": len(out_of_stock_items),
+            "total_inventory_value": round(total_value, 2),
+            "message": message,
+        }
+
+        return json.dumps(result, indent=2)
+
+    except Exception as e:
+        logger.exception(f"Error getting inventory snapshot: {e}")
+        return json.dumps({"success": False, "error": str(e)}, indent=2)
+
+
+@tool
+def find_similar_past_quotes(search_terms: str, limit: int = 5) -> Dict[str, Any]:
+    """
+    Search historical quotes to help with pricing decisions.
+
+    Args:
+        search_terms: Keywords to search for in past quotes
+        limit: Maximum number of results to return
+
+    Returns:
+        Dictionary containing historical quotes that match the search
+    """
+    # Parse search terms and create a list of strings
+    search_terms = search_terms.split(",")
+    search_terms = [term.strip() for term in search_terms]
+
+    # print(f"Searching historical quotes for terms: {search_terms}")
+    # print(f"{isinstance(search_terms, list)=}")
+    quotes = search_quote_history(search_terms, 2)
+    # print(quotes)
+    return {"historical_quotes": quotes, "count": len(quotes)}
+
+
+@tool
 def check_delivery_timeline(
     item_name: str, reorder_quantity: int, request_date: str
 ) -> dict[str, Any]:
@@ -2309,31 +2712,38 @@ def calculate_single_item_quote(
     """
     try:
 
-        # Validate required fields
-        if not item_name:
-            return json.dumps(
-                {"success": False, "error": "Missing required field: item_name"},
-                indent=2,
-            )
-
-        if not order_quantity or order_quantity <= 0:
+        # ===== NEW VALIDATION BLOCK =====
+        # Validate inputs
+        if not item_name or item_name == "null":
             return json.dumps(
                 {
                     "success": False,
-                    "error": "Invalid or missing order_quantity (must be > 0)",
+                    "error": "Invalid item_name: cannot be null or empty",
+                    "message": "Cannot calculate quote for invalid item",
                 },
                 indent=2,
             )
 
-        if unit_price is None or unit_price < 0:
+        if unit_price is None or unit_price <= 0:
             return json.dumps(
                 {
                     "success": False,
-                    "error": "Invalid or missing unit_price (must be >= 0)",
+                    "error": f"Invalid unit_price: {unit_price}",
+                    "message": f"Cannot calculate quote for {item_name} without valid unit price",
                 },
                 indent=2,
             )
 
+        if order_quantity <= 0:
+            return json.dumps(
+                {
+                    "success": False,
+                    "error": f"Invalid order_quantity: {order_quantity}",
+                    "message": "Order quantity must be greater than 0",
+                },
+                indent=2,
+            )
+        # ===== END VALIDATION BLOCK =====
         # Calculate quote with 20% markup
         markup = Decimal("1.2")  # 20% markup for quotes
         unit_price_decimal = Decimal(str(unit_price))
@@ -2593,6 +3003,8 @@ def fulfill_single_item_order(
                 {
                     "success": False,
                     "error": f"Item not found in inventory: {item_name}",
+                    "message": "Cannot fulfill order for non-existent item",
+                    "found": False,
                 },
                 indent=2,
             )
@@ -2789,6 +3201,7 @@ def format_order_confirmation_email(order_data: dict[str, Any]) -> str:
             - order_id: Unique order identifier
             - quotation: Full quotation text
             - quotation_items: List of line items with details
+            - unavailable_items: List of items that cannot be ordered (optional)
             - order_delivery_date: Expected delivery date
             - total_amount: Final total after discounts
             - tracking_number: Shipment tracking number (if available)
@@ -2812,6 +3225,7 @@ def format_order_confirmation_email(order_data: dict[str, Any]) -> str:
     request_date = _format_date(order_data.get("request_date", ""))
     customer_job = order_data.get("customer_job", "Valued Customer")
     event_type = order_data.get("event_type", "order")
+    unavailable_items = order_data.get("unavailable_items", [])
 
     # Build email header
     email_lines = [
@@ -2908,6 +3322,35 @@ def format_order_confirmation_email(order_data: dict[str, Any]) -> str:
             )
 
     email_lines.append("=" * 80)
+
+    # Add unavailable items section if any
+    if unavailable_items:
+        email_lines.extend(
+            [
+                "ITEMS NOT AVAILABLE",
+                "=" * 80,
+                "",
+                "The following items could not be included in your order:",
+                "",
+            ]
+        )
+        
+        for item in unavailable_items:
+            query = item.get("query", "Unknown Item")
+            order_quantity = item.get("order_quantity", 0)
+            reason = item.get("reason", "Not available in catalog")
+            
+            email_lines.append(f"• {order_quantity:,} {query} - {reason}")
+        
+        email_lines.extend(
+            [
+                "",
+                "We apologize for the inconvenience. Please contact us if you would",
+                "like assistance finding alternative products or substitutes.",
+                "",
+                "=" * 80,
+            ]
+        )
 
     # Add delivery information
     delivery_date = _format_date(order_data.get("order_delivery_date", ""))
@@ -3094,8 +3537,9 @@ Your responsibilities:
 - Identify delivery dates if required
 - Identify paper sizes
 - Identify any special instructions or notes for items if required
+- VALIDATE that semantic search results are semantically correct
 
-Use the semantic_search_catalog tool to find items in the  the catalog. When using the tool, provide a search query. For example if the customer requires " 300 sheets of photo paper", use semantic_search_catalog with "photo paper" as the search term. 
+Use the semantic_search_catalog tool to find items in the catalog. When using the tool, provide a search query. For example if the customer requires "300 sheets of photo paper", use semantic_search_catalog with "photo paper" as the search term. 
 
 Use the convert_ream_to_sheets tool to convert reams to sheets when the customer specifies quantity in reams.
 
@@ -3109,10 +3553,44 @@ Response: semantic_search_catalog with "photo paper" as the search query
 Request: "I need 200 sheets of A4 glossy paper for a conference"
 Response: semantic_search_catalog with "glossy paper" as the search query
 
-Always use boolean True or boolean False for the 'found' field in the tool call based on whether a good match was found in the catalog. never use strings like "true" or "false" (no capitalization).
+---
+
+CRITICAL VALIDATION RULES:
+
+1. If semantic_search_catalog returns a match, VERIFY the match makes semantic sense
+2. Check if the matched item's category is appropriate for the query:
+   - Example: "tickets" should NOT match "paper" or "specialty paper" items
+   - Example: "balloons" should NOT match any paper products
+   - Example: "posters" (finished product) is DIFFERENT from "Poster paper" (raw material)
+3. Only set found=True if:
+   - Confidence is "high" or "medium" (the tool already filters this)
+   - The matched item logically corresponds to what was requested
+   - The category makes sense (e.g., paper products for paper requests)
+4. If the semantic_search_catalog tool returns found=False, respect that decision
+5. If you receive a match but it doesn't make semantic sense, override and set found=False
+
+EXAMPLES OF INVALID MATCHES TO REJECT:
+- Query: "tickets" → Matched: "Sticky notes" ❌ INVALID (different products) → Set found=False
+- Query: "balloons" → Matched: "Colored paper" ❌ INVALID (not related) → Set found=False
+- Query: "posters" → Matched: "Poster paper" ❌ INVALID (raw vs finished) → Set found=False
+- Query: "decorations" → Matched: any paper product ❌ INVALID → Set found=False
+
+EXAMPLES OF VALID MATCHES TO ACCEPT:
+- Query: "flyers" → Matched: "Flyers" ✅ VALID (exact match) → Set found=True
+- Query: "A4 paper" → Matched: "A4 paper" ✅ VALID (exact match) → Set found=True
+- Query: "glossy paper" → Matched: "Glossy paper" ✅ VALID (exact match) → Set found=True
+- Query: "cardstock" → Matched: "Cardstock" ✅ VALID (exact match) → Set found=True
+
+---
+
+Always use boolean True or boolean False for the 'found' field based on:
+1. Semantic search confidence level (tool already validates this)
+2. Logical semantic correctness of the match
+3. Category appropriateness
+4. Common sense - does the match actually correspond to what was requested?
 
 Available tools:
-1. semantic_search_catalog: Search catalog by item name keyword
+1. semantic_search_catalog: Search catalog by item name keyword (returns validated, high-confidence matches)
 2. convert_ream_to_sheets: Convert reams to sheets (1 ream = 500 sheets)
 
 Only select one 'item_name' for each 'query' in the order request that best matches the customer's needs. Never have 2 query_items with the same 'query' in the order details.
@@ -3166,6 +3644,7 @@ class InventoryAgent(ToolCallingAgent):
                 calculate_reorder_quantity,
                 check_delivery_timeline,
                 compare_delivery_dates,
+                get_inventory_snapshot,
             ],
             model=model,
             name="inventory_agent",
@@ -3191,6 +3670,7 @@ AFTER PROCESSING ALL ITEMS:
 5. compare_delivery_dates(expected_delivery_date, latest_estimated_date) → perform comparison
    - expected_delivery_date: Extract from order_details['expected_delivery_date']
    - latest_estimated_date: The LATEST date from step 3 across ALL items
+6. get_inventory_snapshot(request_date) → retrieve current inventory data snapshot 
 
 ITEM VALIDATION RULE:
 ✅ ONLY process items where: found = True/true AND item_name != 'N/A'/'Not Found'/'None'
@@ -3215,6 +3695,9 @@ TOOLS:
    - Call EXACTLY ONCE after processing ALL items
    - Use order_details['expected_delivery_date'] for first argument
    - Use LATEST estimated_delivery_date from all items for second argument
+   
+5. get_inventory_snapshot(request_date)
+   - Retrieve current inventory data snapshot
 
 CRITICAL INSTRUCTIONS:
 - You MUST call compare_delivery_dates exactly once
@@ -3240,7 +3723,11 @@ OUTPUT FORMAT:
         "estimated_delivery_date": str,  # Latest from all items
         "status": str,  # From compare_delivery_dates result
         "message": str  # From compare_delivery_dates result
+    },
+    "inventory_snapshot": {
+        ...  # Data from get_inventory_snapshot tool
     }
+    
 }
 
 Do not use query search string, only use the item_name provided in the order details.
@@ -3282,6 +3769,7 @@ class QuotingAgent(ToolCallingAgent):
         super().__init__(
             tools=[
                 # calculate_multi_item_quote,
+                find_similar_past_quotes,
                 calculate_single_item_quote,
                 calculate_order_total,
                 calculate_bulk_discount,
@@ -3289,10 +3777,39 @@ class QuotingAgent(ToolCallingAgent):
             model=model,
             name="quoting_agent",
             description="""
-You are a Pricing and Quote Generation Agent for Munder Difflin paper supply company.
-
 ## Role and Identity
 You are a **Professional Quotation Specialist** responsible for generating accurate, customer-friendly price quotes for paper products and supplies.
+
+---
+⚠️ CRITICAL: BLANK QUOTE HANDLING ⚠️
+
+BEFORE doing ANYTHING else, CHECK if ANY items can be ordered:
+
+BLANK QUOTE CONDITIONS (return immediately without calling ANY tools):
+1. ALL items have 'found' = False/false OR
+2. ALL items have item_name = 'N/A' OR 'Not Found' OR 'None' OR
+3. inventory_items list is empty OR
+4. NO valid items exist in order_details['query_items']
+
+IF ANY of above conditions are TRUE:
+✋ STOP - Do NOT call ANY tools
+✋ Return immediately with BLANK QUOTE:
+
+{
+    "quotation_text": "Thank you for your inquiry. Unfortunately, none of the items you requested are currently available in our catalog. We apologize that we cannot fulfill your order at this time. Please feel free to contact us if you'd like to explore alternative products.",
+    "order_id": "[order_id from order_details]",
+    "items_count": 0,
+    "quotation_items": [],
+    "subtotal": 0.0,
+    "discount_percent": 0.0,
+    "discount_amount": 0.0,
+    "final_total": 0.0
+}
+
+IF at least ONE item has 'found' = True AND valid item_name:
+✓ Proceed with normal quoting process using tools
+
+---
 
 ## Core Responsibilities
 
@@ -3315,6 +3832,50 @@ You are a **Professional Quotation Specialist** responsible for generating accur
 
 ---
 
+⚠️ CRITICAL PRE-FLIGHT VALIDATION (DO THIS FIRST):
+
+Before ANY calculations:
+1. Count items where found=True in order_details['query_items']
+2. Identify ALL unavailable items (found=False):
+   - For EACH item where found=False, extract:
+     * query (original search term)
+     * order_quantity (requested quantity)
+     * message (reason why not found)
+   - Store in unavailable_items list with format:
+     {"query": query, "order_quantity": qty, "reason": message}
+
+3. If count = 0 (NO available items):
+   - DO NOT call ANY calculation tools
+   - IMMEDIATELY return final_answer with:
+     * quotation_items: []
+     * unavailable_items: [list of ALL requested items]
+     * subtotal: 0.0
+     * discount_percent: 0.0
+     * discount_amount: 0.0
+     * final_total: 0.0
+     * quotation_text: MUST include:
+       - Apology for unavailable items
+       - List ALL items that cannot be ordered
+       - Offer to help find alternatives
+   - STOP HERE - Do not proceed to Phase 1
+
+4. If count > 0 (SOME available items):
+   - Filter order_details['query_items'] to ONLY items where found=True
+   - Store filtered list as available_items
+   - Keep unavailable_items list from step 2
+   - Proceed to Phase 1 using ONLY available_items
+   - Include unavailable_items list in your final response
+   - MUST mention unavailable items in quotation_text
+
+UNDER NO CIRCUMSTANCES should you calculate quotes for items with found=False.
+
+IMPORTANT:
+If no items in inventory can be ordered (i.e., all items have 'found' = False/false or item_name = 'N/A'/'Not Found'/'None') OR inventory_items is empty:
+  - Return quotation_items as empty list   
+  - Set subtotal, discount_percent, discount_amount, final_total to 0.0
+  - Provide a polite message in quotation_text indicating no items could be ordered and no quote was generated
+  - Do NOT call any tools and give a response with empty quotation_items and zero totals
+  
 ## CRITICAL: TOOL EXECUTION WORKFLOW
 
 ⚠️ **YOU MUST FOLLOW THIS EXACT SEQUENCE** ⚠️
@@ -3322,21 +3883,25 @@ You are a **Professional Quotation Specialist** responsible for generating accur
 PHASE 1: CALCULATION (Use Tools)
 DO NOT return any answer during this phase. Only call tools.
 
-Step 1: Calculate individual item quotes
-  - For EACH item in order_details, call calculate_single_item_quote
-  - Collect all item results
-  
-Step 2: Calculate order total
-  - Call calculate_order_total with all items
-  - Get total_quantity and subtotal
-  
-Step 3: Calculate bulk discount
-  - Call calculate_bulk_discount(total_quantity, order_size)
-  - Get discount_percent
+Step 1: Check past quotes
+- Call find_similar_past_quotes with list of query_items[query] from query_items in order_details
+- If past quotes found, use them to guide quote style, tone, and wording.
 
-Step 4: Calculate final amounts
-  - discount_amount = subtotal × (discount_percent / 100)
-  - final_total = subtotal - discount_amount
+Step 2: Calculate individual item quotes
+- For EACH item in order_details, call calculate_single_item_quote
+- Collect all item results
+
+Step 3: Calculate order total
+- Call calculate_order_total with all items
+- Get total_quantity and subtotal
+
+Step 4: Calculate bulk discount
+- Call calculate_bulk_discount(total_quantity, order_size)
+- Get discount_percent
+
+Step 5: Calculate final amounts
+- discount_amount = subtotal × (discount_percent / 100)
+- final_total = subtotal - discount_amount
 
 PHASE 2: RESPONSE (Return Final Answer)
 Only AFTER completing ALL tool calls in Phase 1, return your final answer as a Python dictionary.
@@ -3401,6 +3966,16 @@ Calculates bulk discount percentage.
 **Returns:**
 - float: Discount percentage (e.g., 10.0 for 10%)
 
+
+### 4. find_similar_past_quotes
+Finds similar past quotes based on search terms to use as a basis for the quote wording.
+
+**Input:**  
+- search_terms (list of str): Keywords to search for in past quotes
+
+**Returns:**    
+- List of past quotes (list of dictionaries)    
+
 ---
 
 ## Execution Example
@@ -3434,6 +4009,13 @@ Return a Python dictionary (NOT JSON string, NO markdown):
             "total": 90.00
         }
     ],
+    "unavailable_items": [  # NEW: Items that cannot be ordered
+        {
+            "query": "balloons",
+            "order_quantity": 200,
+            "reason": "Not available in catalog"
+        }
+    ],
     "subtotal": 180.00,
     "discount_percent": 5.0,
     "discount_amount": 9.00,
@@ -3443,6 +4025,33 @@ Return a Python dictionary (NOT JSON string, NO markdown):
 **CRITICAL: Each item in quotation_items MUST include BOTH:**
 - **unit_price**: Original cost price from inventory
 - **selling_price**: Price after 20% markup (unit_price × 1.2)
+
+**CRITICAL: UNAVAILABLE ITEMS HANDLING:**
+
+You MUST always check for and include unavailable items in your response!
+
+- Identify ALL items where found=False or item_name='N/A'/'Not Found'/'None'
+- Add these to "unavailable_items" list with:
+  * query (original search term from order_details)
+  * order_quantity (requested quantity)
+  * reason (message explaining why not available)
+- In quotation_text, politely mention unavailable items at the END after pricing
+- Suggest alternatives or express willingness to help find substitutes
+- DO NOT include unavailable items in quotation_items or pricing calculations
+
+Example unavailable_items format:
+[
+    {
+        "query": "posters",
+        "order_quantity": 2000,
+        "reason": "Similar item NOT found in catalog, item cannot be ordered"
+    },
+    {
+        "query": "tickets",
+        "order_quantity": 10000,
+        "reason": "Similar item NOT found in catalog, item cannot be ordered"
+    }
+]
 
 ---
 
@@ -3477,6 +4086,21 @@ Your total: $79.80"
 - 50 sheets of photo paper at $0.30/sheet = $15.00
 
 Your total: $21.00"
+
+**With unavailable items:**
+"Thank you for your order! For your upcoming concert, we have calculated the costs for 5,000 flyers at $0.18 each. Since you're ordering in bulk, I'm pleased to apply a 5% discount to your order.
+
+Subtotal: $900.00
+Discount (5%): -$37.50
+Your total: $862.50
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently available in our catalog:
+
+• 2,000 posters - Similar item NOT found in catalog, item cannot be ordered
+• 10,000 tickets - Similar item NOT found in catalog, item cannot be ordered
+
+We specialize in paper supplies and related products. If you need alternative products or would like recommendations for similar items we can provide, please contact us at orders@munderdifflin.com and we'll be happy to help find solutions for your event!"
 
 ---
 
@@ -3514,8 +4138,16 @@ Examples: 100lb cover stock, 80lb text paper, specialty cardstock
 9. ❌ DO NOT call tools after starting to return answer
 10. ❌ DO NOT skip any calculation steps
 11. ❌ DO NOT omit unit_price or selling_price fields
+12. ✅ ALWAYS include unavailable_items list in response (even if empty)
+13. ✅ ALWAYS mention unavailable items in quotation_text if any exist
 
-Remember: TOOLS FIRST, ANSWER LAST!
+
+
+Remember: 
+1. TOOLS FIRST, ANSWER LAST!
+2. ALWAYS include unavailable_items field in your response (even if empty list [])
+3. ALWAYS mention unavailable items in quotation_text if any exist
+4. Extract unavailable items BEFORE starting Phase 1 calculations
 """,
         )
 
@@ -3705,6 +4337,12 @@ Item: "Photo paper"
 - From additional_args: request_date="2025-03-28"
 - Call: fulfill_single_item_order("Photo paper", "paper", 300, 0.25, 0.30, "2025-03-28", 0)
 
+IMPORTANT:
+If no items found are found in inventory (all found=False/false):
+ - Return items as empty list
+ - Set total_amount to 0.0
+ - Do not call fulfill_single_item_order or generate_tracking_number
+
 Ensure every item in quote_details['quotation_items'] is processed according to this workflow.
 """,
         )
@@ -3768,417 +4406,448 @@ class OrchestratorAgent:
             str: Agent's response after processing the query.
         """
 
-        order_id = generate_order_id()
-        state["order_id"] = order_id
-        # Step 1: Parse the order details from the customer query
-        example = {
-            "request_date": "2024-09-14",
-            "expected_delivery_date": "2024-09-15",
-            "order_id": "ORD_12345678",
-            "customer_query": " I want to order 500 sheets of recycled A4 cardstock, 300 sheets of A3 photo paper in assorted colors and 200 balloons.",
-            "query_items": [
-                {
-                    "query": "cardstock",
-                    "item_name": "Cardstock",
-                    "order_quantity": 500,
-                    "category": "paper",
-                    "size": "A4",
-                    "notes": "recycled",
-                    "unit_price": 0.15,
-                    "source": "catalog",
-                    "found": True,
-                    "message": "Found similar item in catalog, item can be ordered",
-                },
-                {
-                    "query": "photo paper",
-                    "item_name": "Photo paper",
-                    "order_quantity": 300,
-                    "category": "paper",
-                    "size": "A3",
-                    "notes": "assorted colors",
-                    "unit_price": 0.25,
-                    "source": "catalog",
-                    "found": True,
-                    "message": "Found similar item in catalog, item can be ordered",
-                },
-                {
-                    "query": "balloons",
-                    "item_name": None,
-                    "order_quantity": 200,
-                    "category": None,
-                    "size": None,
-                    "notes": None,
-                    "unit_price": None,
-                    "source": "catalog",
-                    "found": False,
-                    "message": "Item not found in catalog, item cannot be ordered",
-                },
-            ],
-        }
-        prompt = f"""
-Customer Query: {customer_query}
-Order ID: {order_id}
+        try:
 
-Parse the order details from the customer query
+            order_id = generate_order_id()
+            state["order_id"] = order_id
+            # Step 1: Parse the order details from the customer query
+            example = {
+                "request_date": "2024-09-14",
+                "expected_delivery_date": "2024-09-15",
+                "order_id": "ORD_12345678",
+                "customer_query": " I want to order 500 sheets of recycled A4 cardstock, 300 sheets of A3 photo paper in assorted colors and 200 balloons.",
+                "query_items": [
+                    {
+                        "query": "cardstock",
+                        "item_name": "Cardstock",
+                        "order_quantity": 500,
+                        "category": "paper",
+                        "size": "A4",
+                        "notes": "recycled",
+                        "unit_price": 0.15,
+                        "source": "catalog",
+                        "found": True,
+                        "message": "Found similar item in catalog, item can be ordered",
+                    },
+                    {
+                        "query": "photo paper",
+                        "item_name": "Photo paper",
+                        "order_quantity": 300,
+                        "category": "paper",
+                        "size": "A3",
+                        "notes": "assorted colors",
+                        "unit_price": 0.25,
+                        "source": "catalog",
+                        "found": True,
+                        "message": "Found similar item in catalog, item can be ordered",
+                    },
+                    {
+                        "query": "balloons",
+                        "item_name": None,
+                        "order_quantity": 200,
+                        "category": None,
+                        "size": None,
+                        "notes": None,
+                        "unit_price": None,
+                        "source": "catalog",
+                        "found": False,
+                        "message": "Item not found in catalog, item cannot be ordered",
+                    },
+                ],
+            }
+            prompt = f"""
+    Customer Query: {customer_query}
+    Order ID: {order_id}
 
-Return details of the customer query(request_date, expected_delivery_date, order_id, customer_query) including a list of query items with their the search query term, closest matches of item name, order quantities, categories, sizes, additional notes, unit prices, sources, and whether the item was found. Return your response as a JSON string.
+    Parse the order details from the customer query
 
-Always convert reams to sheets when the customer specifies quantity in reams (1 ream = 500 sheets).
+    Return details of the customer query(request_date, expected_delivery_date, order_id, customer_query) including a list of query items with their the search query term, closest matches of item name, order quantities, categories, sizes, additional notes, unit prices, sources, and whether the item was found. Return your response as a JSON string.
 
-Example format for response:
-{example}
+    Always convert reams to sheets when the customer specifies quantity in reams (1 ream = 500 sheets).
 
-{JSON_RESPONSE_INSTRUCTIONS}
-        """
-        order_details_response = self.orderprocessing_agent.run(prompt)
-        # Parse JSON response to dictionary
-        order_details_response = normalize_agent_response(order_details_response)
-        state["order_details_response"] = order_details_response
+    Example format for response:
+    {json.dumps(example, indent=4)}
 
-        # self._dump_state("ORDER DETAILS COMPLETED")
+    {JSON_RESPONSE_INSTRUCTIONS}
+            """
+            order_details_response = self.orderprocessing_agent.run(prompt)
+            # Parse JSON response to dictionary
+            order_details_response = normalize_agent_response(order_details_response)
+            state["order_details_response"] = order_details_response
 
-        inventory_example = {
-            "inventory_items": [
-                {
-                    "item_name": "Glossy paper",
-                    "order_quantity": 200,
-                    "current_stock": 587,
-                    "reorder_quantity": 0,
-                    "min_stock_level": 147,
-                    "estimated_delivery_date": "2025-04-02",
-                },
-                {
-                    "item_name": "Cardstock",
-                    "order_quantity": 100,
-                    "current_stock": 595,
-                    "reorder_quantity": 0,
-                    "min_stock_level": 148,
+            # self._dump_state("ORDER DETAILS COMPLETED")
+
+            inventory_example = {
+                "inventory_items": [
+                    {
+                        "item_name": "Glossy paper",
+                        "order_quantity": 200,
+                        "current_stock": 587,
+                        "reorder_quantity": 0,
+                        "min_stock_level": 147,
+                        "estimated_delivery_date": "2025-04-02",
+                    },
+                    {
+                        "item_name": "Cardstock",
+                        "order_quantity": 100,
+                        "current_stock": 595,
+                        "reorder_quantity": 0,
+                        "min_stock_level": 148,
+                        "estimated_delivery_date": "2025-04-03",
+                    },
+                    {
+                        "item_name": "Colored paper",
+                        "order_quantity": 100,
+                        "current_stock": 788,
+                        "reorder_quantity": 0,
+                        "min_stock_level": 143,
+                        "estimated_delivery_date": "2025-04-01",
+                    },
+                ],
+                "delivery_date_comparison": {
+                    "requested_delivery_date": "2025-04-05",
                     "estimated_delivery_date": "2025-04-03",
+                    "is_feasible": True,
+                    "message": "The estimated delivery date meets the requested delivery date.",
                 },
-                {
-                    "item_name": "Colored paper",
-                    "order_quantity": 100,
-                    "current_stock": 788,
-                    "reorder_quantity": 0,
-                    "min_stock_level": 143,
-                    "estimated_delivery_date": "2025-04-01",
+                "inventory_snapshot": {
+                    "snapshot_date": "2025-03-28",
+                    "total_items": 1500,
                 },
-            ],
-            "delivery_date_comparison": {
-                "requested_delivery_date": "2025-04-05",
-                "estimated_delivery_date": "2025-04-03",
-                "is_feasible": True,
-                "message": "The estimated delivery date meets the requested delivery date.",
-            },
-        }
-        inventory_prompt = f"""
-Process the inventory for this order and check delivery feasibility.
+            }
+            inventory_prompt = f"""
+    Process the inventory for this order and check delivery feasibility.
 
-ORDER DETAILS PROVIDED:
-{json.dumps(order_details_response, indent=2)}
+    ORDER DETAILS PROVIDED:
+    {json.dumps(order_details_response, indent=2)}
 
-INSTRUCTIONS:
-1. For each item in query_items where found=True:
-   - Call check_current_stock to get current stock levels
-   - Call calculate_reorder_quantity to determine reorder needs
-   - Call check_delivery_timeline to get estimated delivery date
+    INSTRUCTIONS:
+    1. For each item in query_items where found=True:
+    - Call check_current_stock to get current stock levels
+    - Call calculate_reorder_quantity to determine reorder needs
+    - Call check_delivery_timeline to get estimated delivery date
 
-2. After processing ALL items:
-   - Identify the LATEST estimated_delivery_date from all items
-   - Call compare_delivery_dates using:
-     * expected_delivery_date from order_details_response['expected_delivery_date']
-     * Latest estimated_delivery_date from the items you processed
+    2. After processing ALL items:
+    - Identify the LATEST estimated_delivery_date from all items
+    - Call compare_delivery_dates using:
+        * expected_delivery_date from order_details_response['expected_delivery_date']
+        * Latest estimated_delivery_date from the items you processed
 
-3. Return a JSON string with TWO keys:
-   a) "inventory_items": list of all processed items with stock info
-   b) "delivery_date_comparison": result from compare_delivery_dates tool
+    3. Return a JSON string with THREE keys:
+    a) "inventory_items": list of all processed items with stock info
+    b) "delivery_date_comparison": result from compare_delivery_dates tool
+    c) "inventory_snapshot": current inventory status including low stock and out of stock items
+    4. Follow the EXACT output format shown in this example:
+    {json.dumps(inventory_example, indent=2)}
 
-CRITICAL: You MUST call compare_delivery_dates once after processing all items.
+    IMPORTANT:
+    CRITICAL: You MUST call compare_delivery_dates once after processing all items.
 
-Expected format for response (return as JSON string):
-{json.dumps(inventory_example, indent=2)}
+    Expected format for response (return as JSON string):
+    {json.dumps(inventory_example, indent=2)}
 
-{JSON_RESPONSE_INSTRUCTIONS}
-"""
-        inventory_response = self.inventory_agent.run(
-            inventory_prompt, order_details_response
-        )
-        # Parse JSON response to dictionary
-        inventory_response = normalize_agent_response(inventory_response)
-        state["inventory_response"] = inventory_response
-
-        # self._dump_state("INVENTORY COMPLETED")
-
-        quoting_example = {
-            "quotation_text": "Thank you for your order! For your upcoming festival, we have calculated the costs for 300 sheets of A4 photo paper at $0.30 each, 500 sheets of cardstock at $0.24 each, and 200 poster boards at $0.30 each. Since you're ordering in bulk, I'm pleased to apply a 10% discount to your order. This brings the A4 paper total to $90, the cardstock total to $120, and the poster boards to $50. Ive calculated your total to be $243 including your 10% discount.",
-            "order_id": "ORD_12345678",
-            "items_count": 3,
-            "quotation_items": [
-                {
-                    "item_name": "Photo paper",
-                    "category": "paper",
-                    "order_quantity": 300,
-                    "unit_price": 0.25,  # Cost price from inventory
-                    "selling_price": 0.3,  # unit_price * 1.2 markup
-                    "total": 90.00,
-                },
-                {
-                    "item_name": "Cardstock",
-                    "category": "paper",
-                    "order_quantity": 500,
-                    "unit_price": 0.2,  # Cost price from inventory
-                    "selling_price": 0.24,  # unit_price * 1.2 markup
-                    "total": 120.00,
-                },
-                {
-                    "item_name": "Poster Boards",
-                    "category": "paper",
-                    "order_quantity": 200,
-                    "unit_price": 0.25,  # Cost price from inventory
-                    "selling_price": 0.3,  # unit_price * 1.2 markup
-                    "total": 60.00,
-                },
-            ],
-            "subtotal": 270.00,
-            "discount_percent": 10.0,
-            "discount_amount": 27.0,
-            "final_total": 243.00,
-        }
-        quoting_prompt = f"""
-Generate a complete pricing quote for this order.
-
-ORDER DETAILS:
-{json.dumps(order_details_response, indent=2)}
-
-INVENTORY DETAILS:
-{json.dumps(inventory_response, indent=2)}
-
----
-
-EXECUTION INSTRUCTIONS:
-
-⚠️ PHASE 1: CALCULATIONS (DO NOT RETURN ANSWER YET)
-
-Step 1: For EACH item in order_details['query_items'] where found=True:
-  - Call calculate_single_item_quote with:
-    * item_name
-    * order_quantity
-    * unit_price
-  - Store the result
-
-Step 2: After ALL items are calculated:
-  - Call calculate_order_total with list of all item results
-  - This gives you: total_quantity, subtotal
-
-Step 3: Calculate discount:
-  - Call calculate_bulk_discount(total_quantity, order_size)
-  - This gives you: discount_percent
-
-Step 4: Calculate final amounts:
-  - discount_amount = subtotal × (discount_percent / 100)
-  - final_total = subtotal - discount_amount
-
-⚠️ PHASE 2: RETURN ANSWER (AFTER ALL CALCULATIONS)
-
-Only after completing ALL steps above, return your final answer as a JSON string.
-
----
-
-REQUIRED OUTPUT FORMAT:
-
-JSON string with these fields:
-- quotation_text: str (customer-friendly quote explanation)
-- order_id: str (from order_details)
-- items_count: int (number of items quoted)
-- quotation_items: list[dict] (all items with pricing details)
-  **EACH ITEM MUST HAVE:**
-  - item_name, category, order_quantity
-  - unit_price (original cost price)
-  - selling_price (price after 20% markup)
-  - total (selling_price × quantity)
-- subtotal: float (before discount)
-- discount_percent: float (0.0 if no discount)
-- discount_amount: float (0.0 if no discount)
-- final_total: float (subtotal - discount_amount)
-
-If discount_percent = 0:
-  - Set discount_amount = 0.0
-  - Set final_total = subtotal
-  - Do NOT mention discount in quotation_text
-
-If discount_percent > 0:
-  - Calculate discount_amount
-  - Calculate final_total
-  - DO mention discount in quotation_text
-
----
-
-EXAMPLE EXPECTED OUTPUT:
-
-{json.dumps(quoting_example, indent=2)}
-
----
-
-CRITICAL RULES:
-1. Complete ALL tool calls BEFORE returning answer
-2. Do NOT return answer until ALL calculations are done
-3. Return as JSON string (no markdown code blocks)
-4. Follow the exact output format shown above
-
-BEGIN PHASE 1 NOW - Calculate all pricing using tools.
-
-{JSON_RESPONSE_INSTRUCTIONS}
-"""
-
-        quoting_response = self.quoting_agent.run(
-            quoting_prompt,
-            order_details=order_details_response,
-            inventory_details=inventory_response,
-        )
-        # Parse JSON response to dictionary
-        quoting_response = normalize_agent_response(quoting_response)
-        state["quoting_response"] = quoting_response
-
-        # self._dump_state("PRICING COMPLETED")
-
-        fulfillment_example = {
-            "order_id": "ORD_12345678",
-            "tracking_number": "None",
-            "order_delivery_date": "2025-04-03",
-            "total_amount": 243.00,
-            "items": [
-                {
-                    "item_name": "Photo paper",
-                    "unit_price": 0.25,
-                    "selling_price": 0.30,
-                    "total": 75.00,
-                    "estimated_delivery_date": "2025-04-01",
-                    "order_quantity": 100,
-                    "current_stock": 788,
-                    "reorder_quantity": 0,
-                    "min_stock_level": 143,
-                    "new_stock": 688,
-                    "fulfillment_status": "Completed",
-                },
-                {
-                    "item_name": "Cardstock",
-                    "unit_price": 0.2,
-                    "total": 100.00,
-                    "estimated_delivery_date": "2025-04-02",
-                    "order_quantity": 50,
-                    "current_stock": 120,
-                    "reorder_quantity": 40,
-                    "min_stock_level": 110,
-                    "new_stock": 110,
-                    "fulfillment_status": "Completed",
-                },
-            ],
-        }
-
-        # Step 5: Fulfill the order
-        fullfillment_prompt = f"""
-Process order fulfillment for all items in the quote.
-
-OUTPUT FORMAT REQUIREMENTS:
-- You MUST return a JSON string (not a Python dictionary)
-- Do NOT wrap your response in markdown code blocks
-- Do NOT include any text before or after the JSON string
-- Return ONLY the JSON string
-
-DATA PROVIDED:
-
-QUOTE DETAILS:
-{json.dumps(quoting_response, indent=2)}
-
-INVENTORY DETAILS:
-{json.dumps(inventory_response, indent=2)}
-
-REQUEST DATE: {state["request_date"]}
-
-INSTRUCTIONS:
-
-1. For EACH item in quote_details['quotation_items'] where order_quantity > 0:
-   
-   a) Extract from quote_details['quotation_items']:
-      - item_name, category, order_quantity, unit_price, selling_price, total
-   
-   b) Find matching item in inventory_details['inventory_items'] by item_name:
-      - reorder_quantity, estimated_delivery_date, current_stock
-   
-   c) Call fulfill_single_item_order with all 7 parameters:
-      - item_name (from quote)
-      - category (from quote)
-      - order_quantity (from quote)
-      - unit_price (from quote)
-      - selling_price (from quote)
-      - request_date (provided above)
-      - reorder_quantity (from inventory)
-
-2. After ALL items are fulfilled:
-   - Call generate_tracking_number() to get tracking number
-
-3. Build response with:
-   - order_id: from quote_details['order_id']
-   - tracking_number: from generate_tracking_number()
-   - order_delivery_date: LATEST estimated_delivery_date from all items
-   - total_amount: from quote_details['final_total']
-   - items: list combining fulfillment results with inventory details
-
-CRITICAL: You MUST call fulfill_single_item_order for every item, passing ALL 7 parameters.
-
-Expected response format (return as JSON string):
-{json.dumps(fulfillment_example, indent=2)}
-
-{JSON_RESPONSE_INSTRUCTIONS}
-"""
-        fulfillment_response = self.ordering_agent.run(
-            fullfillment_prompt,
-            quote_details=quoting_response,
-            inventory_details=inventory_response,
-            request_date=state["request_date"],
-        )
-        # Parse JSON response to dictionary
-        fulfillment_response = normalize_agent_response(fulfillment_response)
-        state["fulfillment_response"] = fulfillment_response
-
-        # self._dump_state("ORDER FULFILLMENT COMPLETED")
-        # Step 6: Build the final response to the customer
-
-        # state = normalize_agent_response(state)
-
-        # build a list of quotation items for the response
-        quotation_items = []
-        quotation_response_items = state["quoting_response"]["quotation_items"]
-        for item in quotation_response_items:
-            # Handle both selling_price and unit_price fields
-            price = item.get("selling_price")
-            quotation_items.append(
-                {
-                    "item_name": item["item_name"],
-                    "order_quantity": item["order_quantity"],
-                    "price": price,
-                    "total": item["total"],
-                }
+    {JSON_RESPONSE_INSTRUCTIONS}
+    """
+            inventory_response = self.inventory_agent.run(
+                inventory_prompt, order_details_response
             )
+            # Parse JSON response to dictionary
+            inventory_response = normalize_agent_response(inventory_response)
+            state["inventory_response"] = inventory_response
 
-        # Craft the reponse to the customer with all the details using details from the global state
-        response = {
-            "request_date": state["request_date"],
-            "original_request": state["original_request"],
-            "customer_job": state["customer_job"],
-            "event_type": state["event_type"],
-            "need_size": state["need_size"],
-            "order_id": state["order_id"],
-            "quotation": state["quoting_response"]["quotation_text"],
-            "quotation_items": quotation_items,
-            "order_delivery_date": state["fulfillment_response"]["order_delivery_date"],
-            "total_amount": state["fulfillment_response"]["total_amount"],
-            "tracking_number": state["fulfillment_response"]["tracking_number"],
-        }
+            # self._dump_state("INVENTORY COMPLETED")
 
-        formatted_response = format_order_confirmation_email(response)
+            quoting_example = {
+                "quotation_text": "Thank you for your order! For your upcoming concert, we have calculated the costs for 5,000 flyers at $0.18 each. Since you're ordering in bulk, I'm pleased to apply a 5% discount to your order.\n\nSubtotal: $900.00\nDiscount (5%): -$37.50\nYour total: $862.50\n\n**IMPORTANT - ITEMS NOT AVAILABLE:**\nWe apologize, but the following items from your request are not currently available in our catalog:\n\n• 2,000 posters - Similar item NOT found in catalog\n• 10,000 tickets - Similar item NOT found in catalog\n\nWe specialize in paper supplies. If you need alternatives, please contact us at orders@munderdifflin.com!",
+                "order_id": "ORD_12345678",
+                "items_count": 1,
+                "quotation_items": [
+                {
+                "item_name": "Flyers",
+                "category": "product",
+                "order_quantity": 5000,
+                "unit_price": 0.15,  # Cost price from inventory
+                "selling_price": 0.18,  # unit_price * 1.2 markup
+                "total": 900.00,
+                }
+                ],
+                "unavailable_items": [  # CRITICAL: ALWAYS include this field
+                {
+                "query": "posters",
+                "order_quantity": 2000,
+                "reason": "Similar item NOT found in catalog, item cannot be ordered"
+                },
+                {
+                    "query": "tickets",
+                "order_quantity": 10000,
+                "reason": "Similar item NOT found in catalog, item cannot be ordered"
+                }
+                ],
+                "subtotal": 900.00,
+                "discount_percent": 5.0,
+                "discount_amount": 37.50,
+                "final_total": 862.50,
+            }
+            quoting_prompt = f"""
+    Generate a complete pricing quote for this order.
 
-        return formatted_response
+    ORDER DETAILS:
+    {json.dumps(order_details_response, indent=2)}
+
+    INVENTORY DETAILS:
+    {json.dumps(inventory_response, indent=2)}
+
+    ---
+
+    EXECUTION INSTRUCTIONS:
+
+    ⚠️ PHASE 1: CALCULATIONS (DO NOT RETURN ANSWER YET)
+
+    Step 1: Check for past quotes
+    - Call find_similar_past_quotes with:
+    * search_terms: list of item_name from order_details['query_items'] where found=True
+    - If past quotes found, use them to inform pricing strategy decisions
+
+    Step 2: For EACH item in order_details['query_items'] where found=True:
+    - Call calculate_single_item_quote with:
+        * item_name
+        * order_quantity
+        * unit_price
+    - Store the result
+
+    Step 3: After ALL items are calculated:
+    - Call calculate_order_total with list of all item results
+    - This gives you: total_quantity, subtotal
+
+    Step 4: Calculate discount:
+    - Call calculate_bulk_discount(total_quantity, order_size)
+    - This gives you: discount_percent
+
+    Step 5: Calculate final amounts:
+    - discount_amount = subtotal × (discount_percent / 100)
+    - final_total = subtotal - discount_amount
+
+    ⚠️ PHASE 2: RETURN ANSWER (AFTER ALL CALCULATIONS)
+
+    Only after completing ALL steps above, return your final answer as a JSON string.
+    
+    ⚠️ CRITICAL: Your response MUST include the "unavailable_items" field!
+    - If there are unavailable items (found=False), include them in the list
+    - If ALL items are available, include unavailable_items: []
+    - DO NOT omit this field
+
+    ---
+
+    REQUIRED OUTPUT FORMAT:
+
+    JSON string with these fields:
+    - quotation_text: str (customer-friendly quote explanation - MUST mention unavailable items if any exist)
+    - order_id: str (from order_details)
+    - items_count: int (number of items quoted)
+    - quotation_items: list[dict] (all items with pricing details)
+    **EACH ITEM MUST HAVE:**
+    - item_name, category, order_quantity
+    - unit_price (original cost price)
+    - selling_price (price after 20% markup)
+    - total (selling_price × quantity)
+    - unavailable_items: list[dict] (CRITICAL: ALWAYS include this field, even if empty [])
+    **EACH UNAVAILABLE ITEM MUST HAVE:**
+    - query: str (original search term from order_details)
+    - order_quantity: int (requested quantity)
+    - reason: str (why item cannot be ordered)
+    - subtotal: float (before discount)
+    - discount_percent: float (0.0 if no discount)
+    - discount_amount: float (0.0 if no discount)
+    - final_total: float (subtotal - discount_amount)
+
+    If discount_percent = 0:
+    - Set discount_amount = 0.0
+    - Set final_total = subtotal
+    - Do NOT mention discount in quotation_text
+
+    If discount_percent > 0:
+    - Calculate discount_amount
+    - Calculate final_total
+    - DO mention discount in quotation_text
+
+    IMPORTANT:
+    If no items found (all found=False/false):
+    - Return quotation_items as empty list   
+    - Set subtotal, discount_percent, discount_amount, final_total to 0.0
+    - Provide a polite message in quotation_text indicating no items could be ordered and no quote was generated
+    ---
+
+    EXAMPLE EXPECTED OUTPUT:
+
+    {json.dumps(quoting_example, indent=2)}
+
+    ---
+
+    CRITICAL RULES:
+    1. Complete ALL tool calls BEFORE returning answer
+    2. Do NOT return answer until ALL calculations are done
+    3. Return as JSON string (no markdown code blocks)
+    4. Follow the exact output format shown above
+
+    BEGIN PHASE 1 NOW - Calculate all pricing using tools.
+
+    {JSON_RESPONSE_INSTRUCTIONS}
+    """
+
+            quoting_response = self.quoting_agent.run(
+                quoting_prompt,
+                order_details=order_details_response,
+                inventory_details=inventory_response,
+            )
+            # Parse JSON response to dictionary
+            quoting_response = normalize_agent_response(quoting_response)
+            state["quoting_response"] = quoting_response
+
+            # self._dump_state("PRICING COMPLETED")
+
+            fulfillment_example = {
+                "order_id": "ORD_12345678",
+                "tracking_number": "None",
+                "order_delivery_date": "2025-04-03",
+                "total_amount": 243.00,
+                "items": [
+                    {
+                        "item_name": "Photo paper",
+                        "unit_price": 0.25,
+                        "selling_price": 0.30,
+                        "total": 75.00,
+                        "estimated_delivery_date": "2025-04-01",
+                        "order_quantity": 100,
+                        "current_stock": 788,
+                        "reorder_quantity": 0,
+                        "min_stock_level": 143,
+                        "new_stock": 688,
+                        "fulfillment_status": "Completed",
+                    },
+                    {
+                        "item_name": "Cardstock",
+                        "unit_price": 0.2,
+                        "total": 100.00,
+                        "estimated_delivery_date": "2025-04-02",
+                        "order_quantity": 50,
+                        "current_stock": 120,
+                        "reorder_quantity": 40,
+                        "min_stock_level": 110,
+                        "new_stock": 110,
+                        "fulfillment_status": "Completed",
+                    },
+                ],
+            }
+
+            # Step 5: Fulfill the order
+            fullfillment_prompt = f"""
+    Process order fulfillment for all items in the quote.
+
+    OUTPUT FORMAT REQUIREMENTS:
+    - You MUST return a JSON string (not a Python dictionary)
+    - Do NOT wrap your response in markdown code blocks
+    - Do NOT include any text before or after the JSON string
+    - Return ONLY the JSON string
+
+    DATA PROVIDED:
+
+    QUOTE DETAILS:
+    {json.dumps(quoting_response, indent=2)}
+
+    INVENTORY DETAILS:
+    {json.dumps(inventory_response, indent=2)}
+
+    REQUEST DATE: {state["request_date"]}
+
+    INSTRUCTIONS:
+
+    1. For EACH item in quote_details['quotation_items'] where order_quantity > 0:
+    
+    a) Extract from quote_details['quotation_items']:
+        - item_name, category, order_quantity, unit_price, selling_price, total
+    
+    b) Find matching item in inventory_details['inventory_items'] by item_name:
+        - reorder_quantity, estimated_delivery_date, current_stock
+    
+    c) Call fulfill_single_item_order with all 7 parameters:
+        - item_name (from quote)
+        - category (from quote)
+        - order_quantity (from quote)
+        - unit_price (from quote)
+        - selling_price (from quote)
+        - request_date (provided above)
+        - reorder_quantity (from inventory)
+
+    2. After ALL items are fulfilled:
+    - Call generate_tracking_number() to get tracking number
+
+    3. Build response with:
+    - order_id: from quote_details['order_id']
+    - tracking_number: from generate_tracking_number()
+    - order_delivery_date: LATEST estimated_delivery_date from all items
+    - total_amount: from quote_details['final_total']
+    - items: list combining fulfillment results with inventory details
+
+    CRITICAL: You MUST call fulfill_single_item_order for every item, passing ALL 7 parameters.
+
+    Expected response format (return as JSON string):
+    {json.dumps(fulfillment_example, indent=2)}
+
+    {JSON_RESPONSE_INSTRUCTIONS}
+    """
+            fulfillment_response = self.ordering_agent.run(
+                fullfillment_prompt,
+                quote_details=quoting_response,
+                inventory_details=inventory_response,
+                request_date=state["request_date"],
+            )
+            # Parse JSON response to dictionary
+            fulfillment_response = normalize_agent_response(fulfillment_response)
+            state["fulfillment_response"] = fulfillment_response
+
+            # self._dump_state("ORDER FULFILLMENT COMPLETED")
+            # Step 6: Build the final response to the customer
+
+            # state = normalize_agent_response(state)
+
+            # build a list of quotation items for the response
+            quotation_items = []
+            quotation_response_items = state["quoting_response"]["quotation_items"]
+            for item in quotation_response_items:
+                # Handle both selling_price and unit_price fields
+                price = item.get("selling_price")
+                quotation_items.append(
+                    {
+                        "item_name": item["item_name"],
+                        "order_quantity": item["order_quantity"],
+                        "price": price,
+                        "total": item["total"],
+                    }
+                )
+
+            # Craft the reponse to the customer with all the details using details from the global state
+            response = {
+                "request_date": state["request_date"],
+                "original_request": state["original_request"],
+                "customer_job": state["customer_job"],
+                "event_type": state["event_type"],
+                "need_size": state["need_size"],
+                "order_id": state["order_id"],
+                "quotation": state["quoting_response"]["quotation_text"],
+                "quotation_items": quotation_items,
+                "unavailable_items": state["quoting_response"].get("unavailable_items", []),
+                "order_delivery_date": state["fulfillment_response"][
+                    "order_delivery_date"
+                ],
+                "total_amount": state["fulfillment_response"]["total_amount"],
+                "tracking_number": state["fulfillment_response"]["tracking_number"],
+            }
+
+            formatted_response = format_order_confirmation_email(response)
+
+            return formatted_response
+        except Exception as e:
+            print(f"Error occurred while formatting response: {e}")
 
     def _dump_state(self, step_name=""):
         """Dump the current state."""
@@ -4263,7 +4932,9 @@ def run_test_scenarios():
         print(f"Cash Balance: ${current_cash:.2f}")
         print(f"Inventory Value: ${current_inventory:.2f}")
 
-        request_with_date = f"{row['request']} (Date of request: {request_date})"
+        request_with_date = (
+            f"{remove_quotes(row['request'])} (Date of request: {request_date})"
+        )
         response = orchestrator.process_query(request_with_date)
 
         report = generate_financial_report(request_date)

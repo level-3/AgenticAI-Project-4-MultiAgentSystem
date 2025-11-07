@@ -4,7 +4,7 @@ MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_3D641AD5
+Order ID: ORD_90A5C219
 Order Date: April 01, 2025
 Customer: Office Manager
 Event Type: Ceremony
@@ -25,11 +25,16 @@ I need these supplies delivered by April 15, 2025. Thank you.
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming ceremony, we have calculated the
-costs for 200 sheets of A4 glossy paper at $0.24 each, 100 sheets of heavy
-cardstock (white) at $0.18 each, and 100 sheets of colored paper (assorted
-colors) at $0.12 each. Since there is no discount applicable, the total is
-$78.00.
+Thank you for your order! We have calculated the costs for 200 sheets of A4
+glossy paper, 100 sheets of heavy cardstock, and 100 sheets of colored paper
+at $78.00.
+
+Subtotal: $78.00
+Discount (0%): -$0.00
+Your total: $78.00
+
+Since there are no unavailable items, your order can be fulfilled as
+requested.
 
 ================================================================================
 ORDER DETAILS
@@ -37,9 +42,9 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
-Colored paper                           100        $0.12       $12.00
 Glossy paper                            200        $0.24       $48.00
 Cardstock                               100        $0.18       $18.00
+Colored paper                           100        $0.12       $12.00
 --------------------------------------------------------------------------------
 SUBTOTAL                                                 $      78.00
 
@@ -83,12 +88,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-2,2025-04-03,45165.7,4875.3,"================================================================================
+2,2025-04-03,45321.939999999995,4863.6,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_CF83D623
+Order ID: ORD_2C4C0F8A
 Order Date: April 03, 2025
 Customer: Hotel Manager
 Event Type: Parade
@@ -105,10 +110,21 @@ supplies by April 15, 2025. Thank you.
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming parade, we have calculated the
-costs for 500 sheets of colorful poster paper at $0.30 each and 300 roll of
-streamers at $0.06 each. This brings the poster paper total to $150.00 and
-the streamers total to $18.00. I’ve calculated your total to be $168.00.
+Thank you for your order! We have calculated the costs for your supplies for
+the parade. Your total for 500 sheets of colorful poster paper at $0.30 each
+comes to $150.00, for 100 sheets of glitter paper at $1.44 each totals
+$144.00, and for 200 sheets of crepe paper at $0.36 each totals $72.00.
+
+Subtotal: $366.00
+Your total: $366.00
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+
+• Streamers - Similar item NOT found in catalog
+• Balloons - Similar item NOT found in catalog
+
 
 ================================================================================
 ORDER DETAILS
@@ -117,16 +133,33 @@ ORDER DETAILS
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
 Poster paper                            500        $0.30      $150.00
-Party streamers                         300        $0.06       $18.00
+Glitter paper                           100        $1.44      $144.00
+Crepe paper                             200        $0.36       $72.00
 --------------------------------------------------------------------------------
-SUBTOTAL                                                 $     168.00
+SUBTOTAL                                                 $     366.00
 
 ================================================================================
 FINANCIAL SUMMARY
 ================================================================================
 
 Order Size Classification: Small
-Final Total (After Discounts): $168.00
+Final Total (After Discounts): $150.00
+
+Subtotal: $366.00
+Discount Applied: -$216.00 (59.0%)
+Total Amount: $150.00
+
+================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 300 streamers - Similar item NOT found in catalog, item cannot be ordered
+• 200 balloons - Similar item NOT found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
 
 ================================================================================
 DELIVERY INFORMATION
@@ -161,12 +194,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-3,2025-04-04,47822.55,4868.45,"================================================================================
+3,2025-04-04,47978.78999999999,4856.75,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_3D4BE01D
+Order ID: ORD_A6C31632
 Order Date: April 04, 2025
 Customer: School Board Resouorce Manager
 Event Type: Conference
@@ -183,13 +216,17 @@ for our upcoming conference. Please confirm the order and delivery schedule.
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming conference, we have calculated
-the costs for 10,000 sheets of A4 paper at $0.06 each, 5,000 sheets of A3
-paper at $0.06 each, and 250,000 sheets of printer paper at $0.06 each.
-Since you're ordering in bulk, I'm pleased to apply a 10% discount to your
-order. This brings the A4 paper total to $600.00, the A3 paper to $300.00,
-and the printer paper to $15,000.00. I've calculated your total to be
-$14,310.00 including your 10% discount.
+Thank you for your order! We have calculated the costs for 10,000 sheets of
+A4 paper at $0.06 each, 5,000 sheets of A3 paper at $0.06 each, and 250,000
+sheets of printer paper at $0.06 each. Since you're ordering in bulk, I'm
+pleased to apply a 10% discount to your order.
+
+Subtotal: $15,900.00
+Discount (10%): -$1,590.00
+Your total: $14,310.00
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+There are no unavailable items in your order!
 
 ================================================================================
 ORDER DETAILS
@@ -197,9 +234,9 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
-A3 paper                              5,000        $0.06      $300.00
 A4 paper                             10,000        $0.06      $600.00
-A4 paper                            250,000        $0.06   $15,000.00
+A3 paper                              5,000        $0.06      $300.00
+printer paper                       250,000        $0.06   $15,000.00
 --------------------------------------------------------------------------------
 SUBTOTAL                                                 $  15,900.00
 
@@ -247,12 +284,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-4,2025-04-05,47893.6,4816.4,"================================================================================
+4,2025-04-05,48339.03999999999,4804.7,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_077806B9
+Order ID: ORD_7E5CF81C
 Order Date: April 05, 2025
 Customer: Non-Profit Director
 Event Type: Reception
@@ -270,9 +307,20 @@ QUOTATION SUMMARY
 ================================================================================
 
 Thank you for your order! For your upcoming reception, we have calculated
-the costs for 500 sheets of high-quality, recycled cardstock at $0.18 each,
-and 250 sheets of A4 size printer paper at $0.096 each. Your total is
-$114.00 without any discounts.
+the costs for 500 sheets of high-quality, recycled cardstock at $0.90 each
+and 250 sheets of A4 size printer paper at $0.60 each.
+
+Subtotal: $600.00
+Since there are no discounts applied, your total is $600.00.
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+• 500 sheets of high-quality, recycled cardstock - Similar item NOT found in
+catalog
+• 250 sheets of A4 size printer paper - Similar item NOT found in catalog
+
+If you need alternatives, please contact us at orders@munderdifflin.com!
 
 ================================================================================
 ORDER DETAILS
@@ -280,17 +328,29 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
-Legal-size paper                        250        $0.10       $24.00
-Cardstock                               500        $0.18       $90.00
+Cardstock                               500        $0.90      $450.00
+A4 size printer paper                   250        $0.60      $150.00
 --------------------------------------------------------------------------------
-SUBTOTAL                                                 $     114.00
+SUBTOTAL                                                 $     600.00
 
 ================================================================================
 FINANCIAL SUMMARY
 ================================================================================
 
 Order Size Classification: Small
-Final Total (After Discounts): $114.00
+Final Total (After Discounts): $600.00
+
+================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 500 cardstock - Similar item NOT found in catalog, item cannot be ordered
+• 250 A4 size printer paper - Similar item NOT found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
 
 ================================================================================
 DELIVERY INFORMATION
@@ -325,12 +385,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-5,2025-04-05,47970.6,4766.4,"================================================================================
+5,2025-04-05,48450.03999999999,4754.7,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_5CFF1632
+Order ID: ORD_E8D6FA98
 Order Date: April 05, 2025
 Customer: School Teacher
 Event Type: Party
@@ -348,13 +408,16 @@ party. Thank you!
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming party, we have calculated the
-costs for 500 sheets of 8.5""x11"" colored paper at $0.12 each, 300 sheets of
-cardstock at $0.18 each, and 200 rolls of decorative washi tape at $0.24
-each. Since you're ordering in bulk, I'm pleased to apply a 3% discount to
-your order. This brings the Colored paper total to $60.00, the Cardstock
-total to $54.00, and the Decorative washi tape to $48.00. I've calculated
-your total to be $156.00 including your 3% discount.
+Thank you for your order! We have calculated the costs for your various
+items. Since you are ordering in bulk, we are pleased to apply a 3% discount
+to your order.
+
+Subtotal: $162.00
+Discount (3%): -$4.86
+Your total: $157.14
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but all items from your request are available in our catalog.
 
 ================================================================================
 ORDER DETAILS
@@ -373,11 +436,11 @@ FINANCIAL SUMMARY
 ================================================================================
 
 Order Size Classification: Medium
-Final Total (After Discounts): $156.00
+Final Total (After Discounts): $157.14
 
 Subtotal: $162.00
-Discount Applied: -$6.00 (3.7%)
-Total Amount: $156.00
+Discount Applied: -$4.86 (3.0%)
+Total Amount: $157.14
 
 ================================================================================
 DELIVERY INFORMATION
@@ -412,12 +475,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-6,2025-04-06,47989.96,4758.599999999999,"================================================================================
+6,2025-04-06,48460.03999999999,4754.7,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_AC816EBB
+Order ID: ORD_1D786C70
 Order Date: April 06, 2025
 Customer: School Teacher
 Event Type: Assembly
@@ -434,13 +497,17 @@ need these supplies delivered by April 15, 2025, for our upcoming assembly.
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming festival, we have calculated the
-costs for 300 sheets of A4 paper at $0.06 each, 500 sheets of construction
-paper at $0.08 each, and 200 sheets of cardstock at $0.18 each. Since you're
-ordering in bulk, I'm pleased to apply a 3% discount to your order. This
-brings the A4 paper total to $18.00, the cardstock total to $36.00, and the
-construction paper to $42.00. Ive calculated your total to be $93.12
-including your 3% discount.
+Thank you for your order! For your request of 500 sheets of colorful
+construction paper, 300 sheets of white printer paper, and 200 sheets of
+cardstock, we have calculated the total amount. Since you're ordering in
+bulk, I am pleased to apply a 3% discount to your order.
+
+Subtotal: $96.00
+Discount (3%): -$2.88
+Your total: $93.12
+
+We specialize in paper supplies, and if you need alternatives or any further
+assistance, please contact us!
 
 ================================================================================
 ORDER DETAILS
@@ -448,9 +515,9 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
+Construction paper                      500        $0.08       $42.00
 A4 paper                                300        $0.06       $18.00
 Cardstock                               200        $0.18       $36.00
-Construction paper                      500        $0.08       $42.00
 --------------------------------------------------------------------------------
 SUBTOTAL                                                 $      96.00
 
@@ -498,12 +565,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-7,2025-04-07,47869.16,4941.4,"================================================================================
+7,2025-04-07,48444.03999999999,4796.7,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_FCF33B1E
+Order ID: ORD_FD153A7F
 Order Date: April 07, 2025
 Customer: Business Owner
 Event Type: Exhibition
@@ -527,13 +594,21 @@ QUOTATION SUMMARY
 ================================================================================
 
 Thank you for your order! For your upcoming exhibition, we have calculated
-the costs for 500 sheets of glossy A4 paper at $0.06 each, 1000 sheets of
-matte A3 paper at $0.22 each, 300 poster boards at $0.30 each, and 200
-sheets of heavyweight cardstock at $0.18 each. Since you're ordering in
-bulk, I'm pleased to apply a 3% discount to your order. This brings the
-glossy A4 paper total to $30.0, the matte A3 paper total to $216.0, the
-poster boards total to $90.0, and the cardstock total to $36.0. I've
-calculated your total to be $361.44 including your 3% discount.
+the costs for 500 sheets of Glossy A4 paper at $0.24 each, 1000 sheets of
+Matte A3 paper at $0.22 each, and 200 sheets of heavyweight cardstock at
+$0.18 each. Since you're ordering in bulk, I'm pleased to apply a 3%
+discount to your order.
+
+Subtotal: $376.00
+Discount (3%): -$11.28
+Your total: $364.72
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+• 300 poster boards (24 x 36) - Similar item NOT found in catalog
+
+If you need alternatives, please contact us at orders@munderdifflin.com!
 
 ================================================================================
 ORDER DETAILS
@@ -541,23 +616,33 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
-A4 paper                                500        $0.06       $30.00
-Poster paper                            300        $0.30       $90.00
+Glossy paper                            500        $0.24      $120.00
+Matte paper                           1,000        $0.22      $220.00
 Cardstock                               200        $0.18       $36.00
-Matte paper                           1,000        $0.22      $216.00
 --------------------------------------------------------------------------------
-SUBTOTAL                                                 $     372.00
+SUBTOTAL                                                 $     376.00
 
 ================================================================================
 FINANCIAL SUMMARY
 ================================================================================
 
 Order Size Classification: Large
-Final Total (After Discounts): $360.84
+Final Total (After Discounts): $364.72
 
-Subtotal: $372.00
-Discount Applied: -$11.16 (3.0%)
-Total Amount: $360.84
+Subtotal: $376.00
+Discount Applied: -$11.28 (3.0%)
+Total Amount: $364.72
+
+================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 300 poster board 24 x 36 - Similar item NOT found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
 
 ================================================================================
 DELIVERY INFORMATION
@@ -592,12 +677,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-8,2025-04-07,48056.66,4897.9,"================================================================================
+8,2025-04-07,48673.53999999999,4711.2,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_FA784A0A
+Order ID: ORD_9DA49525
 Order Date: April 07, 2025
 Customer: School Board Resouorce Manager
 Event Type: Ceremony
@@ -623,11 +708,16 @@ QUOTATION SUMMARY
 Thank you for your order! For your upcoming ceremony, we have calculated the
 costs for 500 sheets of A4 glossy paper at $0.24 each, 1000 sheets of A4
 matte paper at $0.22 each, 2000 sheets of A5 colored paper at $0.12 each,
-and 3000 sheets of A4 recycled paper at $0.10 each. Since you're ordering in
-bulk, I'm pleased to apply a 5% discount to your order. This brings the
-glossy paper total to $120, the matte paper total to $216, the colored paper
-total to $240, and the recycled paper total to $288. Ive calculated your
-total to be $820.8 including your 5% discount.
+and 3000 sheets of A4 recycled paper at $0.10 each. Since you are ordering
+in bulk, I'm pleased to apply a 5% discount to your order.
+
+Subtotal: $864.00
+Discount (5%): -$43.20
+Your total: $820.80
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+None
+
 
 ================================================================================
 ORDER DETAILS
@@ -686,12 +776,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-9,2025-04-07,48093.46000000001,4867.9,"================================================================================
+9,2025-04-07,48706.28999999999,4684.45,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_20FDDDCC
+Order ID: ORD_6008AC7B
 Order Date: April 07, 2025
 Customer: City Hall Clerk
 Event Type: Reception
@@ -713,13 +803,22 @@ I need these supplies delivered by April 10, 2025. Thank you.
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming reception, we have calculated
-the costs for 200 sheets of A4 white printer paper at $0.06 each, 100 sheets
-of A3 glossy paper at $0.24 each, and 50 packets of 100% recycled kraft
-paper envelopes at $0.10 each. Since you are ordering in bulk, there is no
-discount applied to your order. This brings the A4 paper total to $12.00,
-the glossy paper total to $24.00, and the recycled paper total to $4.80.
-I've calculated your total to be $40.80.
+Thank you for your order! For your paper supplies, we have calculated the
+costs for the following items: 100 sheets of glossy paper at $0.24 each and
+200 sheets of A4 paper at $0.06 each.
+
+Subtotal: $36.00
+Discount: $0.00
+Your total: $36.00
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+
+• 50 packets of 100% recycled kraft paper envelopes - Similar item NOT found
+in catalog
+
+If you need alternatives, please contact us at orders@example.com!
 
 ================================================================================
 ORDER DETAILS
@@ -727,24 +826,34 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
-A4 paper                                200        $0.06       $12.00
 Glossy paper                            100        $0.24       $24.00
-Recycled paper                           50        $0.10        $4.80
+A4 paper                                200        $0.06       $12.00
 --------------------------------------------------------------------------------
-SUBTOTAL                                                 $      40.80
+SUBTOTAL                                                 $      36.00
 
 ================================================================================
 FINANCIAL SUMMARY
 ================================================================================
 
 Order Size Classification: Small
-Final Total (After Discounts): $40.80
+Final Total (After Discounts): $36.00
+
+================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 50 100% recycled kraft paper envelopes - Similar item NOT found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
 
 ================================================================================
 DELIVERY INFORMATION
 ================================================================================
 
-Expected Delivery Date: April 08, 2025
+Expected Delivery Date: April 07, 2025
 Tracking Number: None
 
 Your order will be carefully packaged and shipped to ensure
@@ -773,12 +882,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-13,2025-04-08,48088.46000000001,4877.9,"================================================================================
+13,2025-04-08,48710.53999999999,4691.2,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_409C791F
+Order ID: ORD_ACA2AA80
 Order Date: April 08, 2025
 Customer: School Principal
 Event Type: Gathering
@@ -795,10 +904,15 @@ cardstock for our upcoming gathering. Please deliver the supplies by April
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming gathering, we have calculated
-the costs for 500 sheets of A4 paper at $0.06 each and 200 sheets of
-cardstock at $0.18 each. The total for A4 paper is $30.00, and the cardstock
-total is $36.00. Your total is $66.00, with no discount applied.
+Thank you for your order! We have calculated the costs for 500 sheets of A4
+paper at $0.06 each and 200 sheets of cardstock at $0.18 each.
+
+Subtotal: $66.00
+Discount (0%): -$0.00
+Your total: $66.00
+
+We specialize in paper supplies. If you need alternatives, please contact us
+at orders@munderdifflin.com!
 
 ================================================================================
 ORDER DETAILS
@@ -851,12 +965,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-12,2025-04-08,48098.86,4877.9,"================================================================================
+12,2025-04-08,48716.93999999999,4691.2,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_41B1B926
+Order ID: ORD_601D39F1
 Order Date: April 08, 2025
 Customer: City Hall Clerk
 Event Type: Party
@@ -873,12 +987,21 @@ deliver these supplies by April 15, 2025.
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming party, we have calculated the
-costs for 200 sheets of colorful cardstock at $0.18 each, 500 sheets of
-standard printer paper at $0.05 each, and 100 paper napkins at $0.02 each.
-This brings the cardstock total to $36.00, the printer paper total to
-$24.00, and the napkins total to $2.40. I’ve calculated your total to be
-$62.40.
+Thank you for your order! We have calculated the costs for 200 sheets of
+colorful cardstock at $0.18 each and 100 paper napkins at $0.02 each.
+
+Subtotal: $38.40
+Your total: $38.40
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+
+• 500 sheets of standard printer paper - Item not found in catalog, item
+cannot be ordered
+
+If you need any alternatives or further assistance, please contact us at
+orders@example.com!
 
 ================================================================================
 ORDER DETAILS
@@ -886,18 +1009,28 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
-Cardstock                               200        $0.18       $36.00
-Standard copy paper                     500        $0.05       $24.00
 Paper napkins                           100        $0.02        $2.40
+Cardstock                               200        $0.18       $36.00
 --------------------------------------------------------------------------------
-SUBTOTAL                                                 $      62.40
+SUBTOTAL                                                 $      38.40
 
 ================================================================================
 FINANCIAL SUMMARY
 ================================================================================
 
 Order Size Classification: Small
-Final Total (After Discounts): $62.40
+Final Total (After Discounts): $38.40
+
+================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 500 standard printer paper - Item not found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
 
 ================================================================================
 DELIVERY INFORMATION
@@ -932,12 +1065,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-10,2025-04-08,48107.86,4897.9,"================================================================================
+10,2025-04-08,48725.94,4711.2,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_ADEDED36
+Order ID: ORD_1AEB8F6B
 Order Date: April 08, 2025
 Customer: Business Owner
 Event Type: Show
@@ -955,10 +1088,20 @@ QUOTATION SUMMARY
 ================================================================================
 
 Thank you for your order! For your upcoming show, we have calculated the
-costs for 500 sheets of high-quality glossy paper at $0.24 each, and 300
-sheets of sturdy cardstock at $0.18 each.  This brings the glossy paper
-total to $120, and the cardstock total to $54. I’ve calculated your total to
-be $174.00.
+costs for 500 sheets of high-quality glossy paper at $0.24 each and 300
+sheets of sturdy cardstock at $0.18 each.
+
+Subtotal: $174.00
+Discount (0%): -$0.00
+Your total: $174.00
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+
+• No items are currently unavailable.
+
+We look forward to serving you again!
 
 ================================================================================
 ORDER DETAILS
@@ -1011,12 +1154,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-11,2025-04-08,48149.46000000001,4897.9,"================================================================================
+11,2025-04-08,48756.740000000005,4711.2,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_779C5147
+Order ID: ORD_51013FDB
 Order Date: April 08, 2025
 Customer: Event Manager
 Event Type: Exhibition
@@ -1034,10 +1177,14 @@ QUOTATION SUMMARY
 ================================================================================
 
 Thank you for your order! For your upcoming exhibition, we have calculated
-the costs for 500 sheets of A3 glossy paper at $0.24 each, and 300 sheets of
-A4 matte paper at $0.216 each. Since your order does not qualify for a
-discount, the A3 paper total is $120.00 and the A4 paper total is $64.80.
-Your total comes to $184.80.
+the costs for 500 sheets of A3 glossy paper at $0.24 each and 300 sheets of
+A4 matte paper at $0.22 each.
+
+Subtotal: $184.80
+Your total: $184.80
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+No items were found to be unavailable in your request.
 
 ================================================================================
 ORDER DETAILS
@@ -1090,12 +1237,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-14,2025-04-09,48476.96000000001,4735.4,"================================================================================
+14,2025-04-09,48909.240000000005,4723.7,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_6009A9A9
+Order ID: ORD_CA175249
 Order Date: April 09, 2025
 Customer: City Hall Clerk
 Event Type: Performance
@@ -1114,12 +1261,16 @@ QUOTATION SUMMARY
 ================================================================================
 
 Thank you for your order! For your upcoming performance, we have calculated
-the costs for 5000 sheets of A4 paper at $0.06 each, 2000 sheets of poster
+the costs for 5,000 sheets of A4 paper at $0.06 each, 2,000 sheets of poster
 paper at $0.30 each, and 500 sheets of cardstock at $0.18 each. Since you're
-ordering in bulk, I'm pleased to apply a 5% discount to your order. This
-brings the A4 paper total to $300.00, the poster paper total to $600.00, and
-the cardstock total to $90.00. I've calculated your total to be $940.50
-including your 5% discount.
+ordering in bulk, I'm pleased to apply a 5% discount to your order.
+
+Subtotal: $990.00
+Discount (5%): -$49.50
+Your total: $940.50
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+None, all requested items are available in our catalog!
 
 ================================================================================
 ORDER DETAILS
@@ -1177,12 +1328,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-15,2025-04-12,48676.96000000001,4735.4,"================================================================================
+15,2025-04-12,49109.240000000005,4723.7,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_F3AA8A0A
+Order ID: ORD_DFEED203
 Order Date: April 12, 2025
 Customer: Event Manager
 Event Type: Demonstration
@@ -1204,12 +1355,23 @@ I need these supplies delivered by April 15, 2025. Thank you.
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming demonstration, we have
-calculated the costs for 10,000 sheets of A4 paper at $0.06 each, and 5,000
-sheets of colored paper at $0.12 each. Since you're ordering in bulk, I'm
-pleased to apply a 10% discount to your order. This brings the A4 paper
-total to $600.00 and the colored paper total to $600.00. I've calculated
-your total to be $1,080.00 including your 10% discount.
+Thank you for your order! We have calculated the costs for 10,000 sheets of
+A4 paper at $0.06 each and 5,000 sheets of assorted colored paper at $0.12
+each. Since you're ordering in bulk, I'm pleased to apply a 10% discount to
+your order.
+
+Subtotal: $1200.00
+Discount (10%): -$120.00
+Your total: $1080.00
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+
+• 250,000 reams of cardboard for signage - Item not found in catalog, item
+cannot be ordered
+
+If you need alternatives, please contact us at orders@munderdifflin.com!
 
 ================================================================================
 ORDER DETAILS
@@ -1217,8 +1379,8 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
-Colored paper                         5,000        $0.12      $600.00
 A4 paper                             10,000        $0.06      $600.00
+Colored paper                         5,000        $0.12      $600.00
 --------------------------------------------------------------------------------
 SUBTOTAL                                                 $   1,200.00
 
@@ -1232,6 +1394,17 @@ Final Total (After Discounts): $1,080.00
 Subtotal: $1,200.00
 Discount Applied: -$120.00 (10.0%)
 Total Amount: $1,080.00
+
+================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 250,000 cardboard - Item not found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
 
 ================================================================================
 DELIVERY INFORMATION
@@ -1266,12 +1439,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-16,2025-04-13,48681.26000000001,4738.9,"================================================================================
+16,2025-04-13,49113.54000000001,4727.2,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_4CAB636B
+Order ID: ORD_33E49167
 Order Date: April 13, 2025
 Customer: School Teacher
 Event Type: Assembly
@@ -1289,10 +1462,20 @@ event.
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! For your upcoming purchase, we have calculated the
-costs for 500 sheets of A4 paper at $0.06 each, 200 sheets of construction
-paper at $0.08 each, and 100 sheets of poster paper at $0.30 each. Your
-total comes to $76.80.
+Thank you for your order! We have calculated the costs for 500 sheets of A4
+paper at $0.06 each and 200 sheets of colorful construction paper at $0.08
+each.
+
+Subtotal: $46.80
+Your total: $46.80
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+
+• poster board - Similar item NOT found in catalog
+
+If you need alternatives, please contact us at orders@munderdifflin.com!
 
 ================================================================================
 ORDER DETAILS
@@ -1300,18 +1483,28 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
-Poster paper                            100        $0.30       $30.00
 A4 paper                                500        $0.06       $30.00
 Construction paper                      200        $0.08       $16.80
 --------------------------------------------------------------------------------
-SUBTOTAL                                                 $      76.80
+SUBTOTAL                                                 $      46.80
 
 ================================================================================
 FINANCIAL SUMMARY
 ================================================================================
 
 Order Size Classification: Small
-Final Total (After Discounts): $76.80
+Final Total (After Discounts): $46.80
+
+================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 100 poster board - Similar item NOT found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
 
 ================================================================================
 DELIVERY INFORMATION
@@ -1346,12 +1539,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-17,2025-04-14,48767.26000000001,4688.9,"================================================================================
+17,2025-04-14,49209.54000000001,4677.2,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_02824418
+Order ID: ORD_9DB8795D
 Order Date: April 14, 2025
 Customer: Restaurant Manager
 Event Type: Reception
@@ -1376,13 +1569,21 @@ QUOTATION SUMMARY
 ================================================================================
 
 Thank you for your order! For your upcoming reception, we have calculated
-the costs for 1000 sheets of A4 white printer paper at $0.06 each, 500
-sheets of assorted colored paper at $0.12 each, 1000 biodegradable paper
-cups at $0.096 each, and 500 biodegradable paper plates at $0.12 each. Since
-you're ordering in bulk, I'm pleased to apply a 3% discount to your order.
-This brings the A4 paper total to $60, the colored paper total to $60, the
-paper cups total to $96, and the paper plates total to $60. I've calculated
-your total to be $267.12 including your 3% discount.
+the costs for your requested paper supplies totaling $276.00. Since you're
+ordering in medium quantity, I'm pleased to apply a 3% discount to your
+order.
+
+Subtotal: $276.00
+Discount (3%): -$8.28
+Your total: $267.72
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+
+• 2000 table napkins - Similar item NOT found in catalog
+
+If you need alternatives, please contact us at orders@munderdifflin.com!
 
 ================================================================================
 ORDER DETAILS
@@ -1409,97 +1610,21 @@ Discount Applied: -$8.28 (3.0%)
 Total Amount: $267.72
 
 ================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 2,000 table napkins - Similar item NOT found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
+
+================================================================================
 DELIVERY INFORMATION
 ================================================================================
 
 Expected Delivery Date: April 18, 2025
-Tracking Number: Will be provided upon shipment
-
-Your order will be carefully packaged and shipped to ensure
-safe delivery. You will receive tracking updates via email.
-
-================================================================================
-NEXT STEPS
-================================================================================
-
-✓ Your order has been confirmed and is being processed
-✓ You will receive shipment notification with tracking details
-✓ Contact us at orders@munderdifflin.com for any questions
-
-================================================================================
-
-Thank you for choosing Munder Difflin Paper Supply Company!
-
-We appreciate your business and look forward to serving you.
-
-Best regards,
-The Munder Difflin Team
-
-================================================================================
-
-Munder Difflin Paper Supply Company
-Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
-Web: www.munderdifflin.com
-"
-18,2025-04-14,48790.259999999995,4690.9,"================================================================================
-MUNDER DIFFLIN PAPER SUPPLY COMPANY
-Order Confirmation
-================================================================================
-
-Order ID: ORD_B544A5CE
-Order Date: April 14, 2025
-Customer: Office Manager
-Event Type: Ceremony
-
-================================================================================
-ORIGINAL REQUEST
-================================================================================
-
-I would like to place a medium order for the following paper supplies for
-our upcoming ceremony: 500 sheets of high-quality white cardstock, 1000
-sheets of standard printing paper, and 200 sheets of colored paper in
-assorted colors. I need these supplies delivered by April 15, 2025.
-
-================================================================================
-QUOTATION SUMMARY
-================================================================================
-
-Thank you for your order! For your upcoming ceremony, we have calculated the
-costs for 500 sheets of Cardstock at $0.18 each, 1000 sheets of Standard
-copy paper at $0.05 each, and 200 sheets of Colored paper at $0.12 each.
-Since you're ordering in bulk, I'm pleased to apply a 3% discount to your
-order. This brings the Cardstock total to $90, the Standard copy paper total
-to $48, and the Colored paper total to $24. I've calculated your total to be
-$157.94 including your 3% discount.
-
-================================================================================
-ORDER DETAILS
-================================================================================
-
-Item Name                          Quantity   Unit Price        Total
---------------------------------------------------------------------------------
-Cardstock                               500        $0.18       $90.00
-Standard copy paper                   1,000        $0.05       $48.00
-Colored paper                           200        $0.12       $24.00
---------------------------------------------------------------------------------
-SUBTOTAL                                                 $     162.00
-
-================================================================================
-FINANCIAL SUMMARY
-================================================================================
-
-Order Size Classification: Medium
-Final Total (After Discounts): $157.14
-
-Subtotal: $162.00
-Discount Applied: -$4.86 (3.0%)
-Total Amount: $157.14
-
-================================================================================
-DELIVERY INFORMATION
-================================================================================
-
-Expected Delivery Date: April 21, 2025
 Tracking Number: None
 
 Your order will be carefully packaged and shipped to ensure
@@ -1528,12 +1653,113 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-19,2025-04-15,48954.259999999995,4690.9,"================================================================================
+18,2025-04-14,49228.54000000001,4677.2,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_CC86CD61
+Order ID: ORD_4668D09C
+Order Date: April 14, 2025
+Customer: Office Manager
+Event Type: Ceremony
+
+================================================================================
+ORIGINAL REQUEST
+================================================================================
+
+I would like to place a medium order for the following paper supplies for
+our upcoming ceremony: 500 sheets of high-quality white cardstock, 1000
+sheets of standard printing paper, and 200 sheets of colored paper in
+assorted colors. I need these supplies delivered by April 15, 2025.
+
+================================================================================
+QUOTATION SUMMARY
+================================================================================
+
+Thank you for your order! We have prepared the costs for your upcoming
+ceremony, which includes 500 sheets of high-quality white cardstock at $0.18
+each and 200 sheets of colored paper at $0.12 each.
+
+Subtotal: $114.00
+Your total: $114.00
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+
+• 1000 sheets of standard printing paper - Similar item NOT found in catalog
+
+We specialize in paper supplies. If you need alternatives, please contact us
+at orders@munderdifflin.com!
+
+================================================================================
+ORDER DETAILS
+================================================================================
+
+Item Name                          Quantity   Unit Price        Total
+--------------------------------------------------------------------------------
+Cardstock                               500        $0.18       $90.00
+Colored paper                           200        $0.12       $24.00
+--------------------------------------------------------------------------------
+SUBTOTAL                                                 $     114.00
+
+================================================================================
+FINANCIAL SUMMARY
+================================================================================
+
+Order Size Classification: Medium
+Final Total (After Discounts): $114.00
+
+================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 1,000 standard printing paper - Similar item NOT found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
+
+================================================================================
+DELIVERY INFORMATION
+================================================================================
+
+Expected Delivery Date: April 18, 2025
+Tracking Number: None
+
+Your order will be carefully packaged and shipped to ensure
+safe delivery. You will receive tracking updates via email.
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+✓ Your order has been confirmed and is being processed
+✓ You will receive shipment notification with tracking details
+✓ Contact us at orders@munderdifflin.com for any questions
+
+================================================================================
+
+Thank you for choosing Munder Difflin Paper Supply Company!
+
+We appreciate your business and look forward to serving you.
+
+Best regards,
+The Munder Difflin Team
+
+================================================================================
+
+Munder Difflin Paper Supply Company
+Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
+Web: www.munderdifflin.com
+"
+19,2025-04-15,49370.04000000001,4639.7,"================================================================================
+MUNDER DIFFLIN PAPER SUPPLY COMPANY
+Order Confirmation
+================================================================================
+
+Order ID: ORD_BDA71C69
 Order Date: April 15, 2025
 Customer: City Hall Clerk
 Event Type: Exhibition
@@ -1560,11 +1786,20 @@ QUOTATION SUMMARY
 ================================================================================
 
 Thank you for your order! For your upcoming exhibition, we have calculated
-the costs for 2000 sheets of A4 glossy paper at $0.24 each, 1500 sheets of
-A3 matte paper at $0.22 each, and 1000 sheets of cardstock in assorted
-colors at $0.18 each. Since you're ordering in bulk, I'm pleased to apply a
-3% discount to your order. This brings the glossy paper total to $480.00,
-the matte paper total to $324.00, and the cardstock total to $180.00.
+the costs for 2,000 sheets of A4 glossy paper at $0.06 each, 1,500 sheets of
+A3 matte paper at $0.216 each, and 1,000 sheets of cardstock at $0.18 each.
+Since you're ordering in bulk, I'm pleased to apply a 3% discount to your
+order.
+
+Subtotal: $624.00
+Discount (3%): -$18.72
+Your total: $605.28
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but there are no items from your request that are not
+currently available in our catalog.
+
+If you need further assistance, please contact us!
 
 ================================================================================
 ORDER DETAILS
@@ -1572,22 +1807,22 @@ ORDER DETAILS
 
 Item Name                          Quantity   Unit Price        Total
 --------------------------------------------------------------------------------
-Glossy paper                          2,000        $0.24      $480.00
+A4 paper                              2,000        $0.06      $120.00
 Matte paper                           1,500        $0.22      $324.00
 Cardstock                             1,000        $0.18      $180.00
 --------------------------------------------------------------------------------
-SUBTOTAL                                                 $     984.00
+SUBTOTAL                                                 $     624.00
 
 ================================================================================
 FINANCIAL SUMMARY
 ================================================================================
 
 Order Size Classification: Medium
-Final Total (After Discounts): $954.48
+Final Total (After Discounts): $605.28
 
-Subtotal: $984.00
-Discount Applied: -$29.52 (3.0%)
-Total Amount: $954.48
+Subtotal: $624.00
+Discount Applied: -$18.72 (3.0%)
+Total Amount: $605.28
 
 ================================================================================
 DELIVERY INFORMATION
@@ -1622,12 +1857,12 @@ Munder Difflin Paper Supply Company
 Phone: 1-800-MUNDER-1 | Email: orders@munderdifflin.com
 Web: www.munderdifflin.com
 "
-20,2025-04-17,48954.259999999995,4690.9,"================================================================================
+20,2025-04-17,49520.04000000001,4639.7,"================================================================================
 MUNDER DIFFLIN PAPER SUPPLY COMPANY
 Order Confirmation
 ================================================================================
 
-Order ID: ORD_97B24928
+Order ID: ORD_4A72C51B
 Order Date: April 17, 2025
 Customer: Restaurant Manager
 Event Type: Concert
@@ -1645,23 +1880,62 @@ distribution and promotion. Thank you!
 QUOTATION SUMMARY
 ================================================================================
 
-Thank you for your order! Unfortunately, we are unable to provide a quote as
-the requested items (flyers, posters, tickets) were not found in our
-catalog. Please check back with us for available options.
+Thank you for your order! For your upcoming concert, we have calculated the
+costs for 5,000 flyers at $0.18 each. Since you're ordering in bulk, I'm
+pleased to apply a 5% discount to your order.
+
+Subtotal: $900.00
+Discount (5%): -$45.00
+Your total: $855.00
+
+**IMPORTANT - ITEMS NOT AVAILABLE:**
+We apologize, but the following items from your request are not currently
+available in our catalog:
+• 2,000 posters - Similar item NOT found in catalog
+• 10,000 tickets - Similar item NOT found in catalog
+
+We specialize in paper supplies. If you need alternatives, please contact us
+at orders@munderdifflin.com!
+
+================================================================================
+ORDER DETAILS
+================================================================================
+
+Item Name                          Quantity   Unit Price        Total
+--------------------------------------------------------------------------------
+Flyers                                5,000        $0.18      $900.00
+--------------------------------------------------------------------------------
+SUBTOTAL                                                 $     900.00
 
 ================================================================================
 FINANCIAL SUMMARY
 ================================================================================
 
 Order Size Classification: Large
-Final Total (After Discounts): $0.00
+Final Total (After Discounts): $855.00
+
+Subtotal: $900.00
+Discount Applied: -$45.00 (5.0%)
+Total Amount: $855.00
+
+================================================================================
+ITEMS NOT AVAILABLE
+================================================================================
+
+The following items could not be included in your order:
+
+• 2,000 posters - Similar item NOT found in catalog, item cannot be ordered
+• 10,000 tickets - Similar item NOT found in catalog, item cannot be ordered
+
+We apologize for the inconvenience. Please contact us if you would
+like assistance finding alternative products or substitutes.
 
 ================================================================================
 DELIVERY INFORMATION
 ================================================================================
 
-Expected Delivery Date: N/A
-Tracking Number: Will be provided upon shipment
+Expected Delivery Date: April 24, 2025
+Tracking Number: None
 
 Your order will be carefully packaged and shipped to ensure
 safe delivery. You will receive tracking updates via email.
